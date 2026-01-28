@@ -1,0 +1,13 @@
+Flask
+Flask-SQLAlchemy
+Flask-WTF
+Flask-Mail
+Flask-Login
+Flask-Migrate
+email_validator
+razorpay
+gunicorn
+werkzeug
+python-dotenv
+psycopg2-binary
+requests

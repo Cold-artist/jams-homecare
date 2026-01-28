@@ -1,0 +1,598 @@
+{% extends "base.html" %}
+
+{% block title %}Lab Tests & Packages - Max Lab Authorized Collection {% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<style>
+    .lab-hero {
+        padding: 8rem 0 4rem;
+        background: linear-gradient(rgba(236, 254, 255, 0.75), rgba(255, 255, 255, 0.85)),
+        url('{{ url_for("static", filename="images/lab_hero.png") }}');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+</style>
+<section class="lab-hero">
+    <div class="container text-center">
+        <span class="badge fade-up">Max Lab by Max Hospitals | Authorized Collection Center (Reg No. 6296)</span>
+        <h1 class="fade-up delay-1"
+            style="font-size: 3rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+            Comprehensive Diagnostic Tests
+        </h1>
+        <p class="fade-up delay-2"
+            style="font-size: 1.25rem; color: var(--text-muted); max-width: 700px; margin: 0 auto 3rem;">
+            Choose from over 50+ specialized pathology tests. Home collection by trained phlebotomists, accurate reports
+            from Max Lab.
+        </p>
+
+        <!-- Search & Filter Bar -->
+        <div class="glass-card fade-up delay-3" style="max-width: 900px; margin: 0 auto; padding: 1.5rem;">
+            <div style="display: grid; grid-template-columns: 1fr 200px auto; gap: 1rem; align-items: center;">
+                <div style="position: relative;">
+                    <span
+                        style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.2rem;">🔍</span>
+                    <input type="text" id="testSearch" placeholder="Search for tests (e.g., CBC, Thyroid, Vitamin D)..."
+                        style="width: 100%; padding: 1rem 1rem 1rem 3rem; border: 1px solid var(--border); border-radius: 99px; font-family: var(--font-main); font-size: 1rem; background: rgba(255,255,255,0.8);">
+                </div>
+                <div>
+                    <select id="categoryFilter"
+                        style="width: 100%; padding: 1rem; border: 1px solid var(--border); border-radius: 99px; font-family: var(--font-main); font-size: 1rem; background: rgba(255,255,255,0.8); cursor: pointer;">
+                        <option value="all">All Categories</option>
+                        <option value="Health Packages">Health Packages</option>
+                        <option value="Routine">Routine Tests</option>
+                        <option value="Diabetes">Diabetes</option>
+                        <option value="Thyroid">Thyroid</option>
+                        <option value="Heart">Heart & Lipid</option>
+                        <option value="Vitamins">Vitamins</option>
+                        <option value="Fever">Fever Panels</option>
+                        <option value="Women">Women's Health</option>
+                    </select>
+                </div>
+                <button onclick="filterTests()" class="btn" style="height: 100%;">Search</button>
+            </div>
+            <div
+                style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--text-light); text-align: left; padding-left: 1rem;">
+                Popular: <span style="cursor: pointer; text-decoration: underline;"
+                    onclick="setSearch('Full Body')">Full Body Checkup</span>,
+                <span style="cursor: pointer; text-decoration: underline;" onclick="setSearch('CBC')">CBC</span>,
+                <span style="cursor: pointer; text-decoration: underline;" onclick="setSearch('HbA1c')">HbA1c</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Special Weekend Offer Banner (Minimalist) -->
+<section style="padding: 1rem 0 2rem;">
+    <div class="container">
+        <div class="glass-card fade-up" style="
+            background: linear-gradient(to right, #f0fdf4, #ffffff); 
+            border: 1px dashed #16a34a; 
+            padding: 1.25rem;
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            border-radius: 12px;
+        ">
+            <!-- Left: Headline & Deal -->
+            <div style="flex: 1; min-width: 280px;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;">
+                    <span
+                        style="background: #16a34a; color: white; padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Weekend
+                        Special</span>
+                    <h2 style="color: #166534; font-size: 1.2rem; font-weight: 700; margin: 0;">Walk-in Offer</h2>
+                </div>
+                <div style="font-size: 0.95rem; color: #15803d; line-height: 1.4;">
+                    Get <strong style="color: #16a34a;">1 Test FREE</strong> or <strong
+                        style="color: #ea580c; border-bottom: 1px dashed #ea580c;">All 4 for just ₹99</strong>
+                </div>
+            </div>
+
+            <!-- Middle: The Tests (Inline List) -->
+            <div
+                style="flex: 2; min-width: 320px; border-left: 2px solid #f0fdf4; padding-left: 1.5rem; display: flex; align-items: center; gap: 1rem;">
+                <div style="font-size: 2.5rem; line-height: 1;">🧪</div>
+                <div>
+                    <div
+                        style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600; margin-bottom: 0.25rem;">
+                        Current Bundle Includes:</div>
+                    <div
+                        style="display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.9rem; color: #374151; font-weight: 500;">
+                        <span>Cholesterol</span> <span style="color: #d1d5db;">|</span>
+                        <span>Fasting Sugar</span> <span style="color: #d1d5db;">|</span>
+                        <span>Uric Acid</span> <span style="color: #d1d5db;">|</span>
+                        <span>Calcium</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Action (Compact) -->
+            <div style="flex: 0 0 auto; text-align: right;">
+                <div style="font-size: 0.8rem; color: #9a3412; font-weight: 600; margin-bottom: 0.25rem;">
+                    📍 Jai Ambey Med Store (Walk-in)
+                </div>
+                <a href="https://www.google.com/maps/search/?api=1&query=Jai+Ambey+Medical+Store+Pilikothi+Road+Haldwani"
+                    target="_blank" class="btn btn-sm"
+                    style="background: white; color: #ea580c; border: 1px solid #fdba74; padding: 0.4rem 1rem; font-size: 0.85rem;">
+                    Get Directions →
+                </a>
+            </div>
+
+            <!-- Mobile Adjustments -->
+            <style>
+                @media (max-width: 900px) {
+                    div.glass-card {
+                        flex-direction: column;
+                        align-items: flex-start !important;
+                        gap: 1rem;
+                        padding: 1.5rem;
+                    }
+
+                    div[style*="border-left"] {
+                        border: none !important;
+                        padding: 0 !important;
+                        width: 100%;
+                        border-top: 2px solid #f0fdf4;
+                        padding-top: 1rem !important;
+                    }
+
+                    div[style*="text-align: right"] {
+                        text-align: left !important;
+                        width: 100%;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-top: 0.5rem;
+                    }
+                }
+            </style>
+        </div>
+    </div>
+</section>
+
+<!-- Catalogue Section -->
+<section style="padding: 0 0 6rem;">
+    <div class="container">
+        <!-- Results Count -->
+        <div id="resultsCount" style="margin-bottom: 2rem; color: var(--text-muted); font-weight: 500;">
+            Showing all tests
+        </div>
+
+        <!-- Packages Section -->
+        <div id="packagesSection" style="margin-bottom: 4rem;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+                <h2 style="font-size: 1.75rem; color: var(--secondary); margin: 0;">📦 Health Packages</h2>
+                <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
+            </div>
+            <div class="test-grid" id="packagesGrid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Single Tests Section -->
+        <div id="singleTestsSection">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+                <h2 style="font-size: 1.75rem; color: var(--secondary); margin: 0;">🔬 Individual Tests</h2>
+                <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
+            </div>
+            <div class="test-grid" id="testGrid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <div id="noResults" style="grid-column: 1 / -1; padding: 4rem; text-align: center; display: none;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🧪</div>
+            <h3>No tests found</h3>
+            <p style="color: var(--text-muted);">Try a different search term or category.</p>
+            <button onclick="resetSearch()" class="btn btn-secondary" style="margin-top: 1rem;">View All Tests</button>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section style="padding: 5rem 0; background: white;">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+            <div class="glass-card" style="text-align: center; border: 1px solid var(--border);">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🏠</div>
+                <h4>Free Home Collection</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Trained phlebotomists visit your home at your
+                    preferred time. No convenience fee.</p>
+            </div>
+            <div class="glass-card" style="text-align: center; border: 1px solid var(--border);">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚡</div>
+                <h4>Fast Reporting</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Get most reports within 24 hours via Email and
+                    WhatsApp.</p>
+            </div>
+            <div class="glass-card" style="text-align: center; border: 1px solid var(--border);">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🛡️</div>
+                <h4>Accuracy Guaranteed</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Authorized Max Lab Collection Center.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Test Details Modal -->
+<div id="testModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content glass-card">
+        <button class="close-btn" onclick="closeModal(event)">×</button>
+
+        <div class="modal-header">
+            <span id="modalCategory" class="badge"
+                style="background: rgba(14, 116, 144, 0.1); color: var(--primary);">Category</span>
+            <h2 id="modalTitle" style="margin: 0.5rem 0;">Test Name</h2>
+            <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem;">
+                <span id="modalPrice" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">₹0</span>
+                <span style="color: var(--text-muted); font-size: 0.9rem;">(Inc. all taxes)</span>
+            </div>
+        </div>
+
+        <div class="modal-body">
+            <div class="info-group">
+                <h4>🧪 What is this test?</h4>
+                <p id="modalDesc">Description goes here.</p>
+            </div>
+
+            <div class="info-group">
+                <h4>📋 Parameters Covered</h4>
+                <p id="modalComponents">Everything covered.</p>
+            </div>
+
+            <div class="info-group">
+                <h4>🩺 Clinical Significance (Why do it?)</h4>
+                <p id="modalSignificance">Why it matters.</p>
+            </div>
+
+            <div
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: #f8fafc; padding: 1rem; border-radius: 8px; margin-top: 1.5rem;">
+                <div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Sample Type</span>
+                    <span id="modalSample" style="font-weight: 600;">Blood/Urine</span>
+                </div>
+                <div>
+                    <span style="font-size: 0.8rem; color: var(--text-muted); display: block;">Report TAT</span>
+                    <span id="modalTAT" style="font-weight: 600;">24 Hours</span>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="bookCurrentTest()" class="btn"
+            style="width: 100%; justify-content: center; margin-top: 1.5rem; font-size: 1.1rem;">
+            Book This Test Now
+        </button>
+    </div>
+</div>
+
+<style>
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        padding: 1rem;
+    }
+
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-content {
+        background: white;
+        width: 100%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+        padding: 2rem !important;
+    }
+
+    .modal-overlay.active .modal-content {
+        transform: translateY(0);
+    }
+
+    .close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1.5rem;
+        font-size: 2rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-muted);
+        line-height: 1;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .info-group h4 {
+        color: var(--secondary);
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-group p {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+</style>
+
+<script>
+    // Comprehensive Test Database with Detailed Clinical Info
+    // Comprehensive Test Database (Populated from Server)
+    const tests = {{ lab_tests_data | tojson }};
+
+    // Populating minimal data for others to avoid code bloat (Logic would fetch from real DB in prod)
+    // Add default placeholders for any missing detail fields
+    tests.forEach(test => {
+        if (!test.components) test.components = "Standard panel parameters as per Max Lab protocols.";
+        if (!test.significance) test.significance = "Clinically correlates with relevant symptoms and medical history. Please consult your doctor for interpretation.";
+        if (!test.tat) test.tat = "24 Hours";
+        if (!test.sample) test.sample = "Blood (Serum/Plasma)";
+    });
+
+    const packagesGrid = document.getElementById('packagesGrid');
+    const testGrid = document.getElementById('testGrid');
+    const resultsCount = document.getElementById('resultsCount');
+    const noResults = document.getElementById('noResults');
+
+    function renderTests(items) {
+        packagesGrid.innerHTML = '';
+        testGrid.innerHTML = '';
+
+        // Split items
+        const packageItems = items.filter(t => t.category === 'Health Packages');
+        const singleItems = items.filter(t => t.category !== 'Health Packages');
+
+        if (items.length === 0) {
+            document.getElementById('packagesSection').style.display = 'none';
+            document.getElementById('singleTestsSection').style.display = 'none';
+            noResults.style.display = 'block';
+            resultsCount.textContent = '0 tests found';
+            return;
+        }
+
+        noResults.style.display = 'none';
+        resultsCount.textContent = `Showing ${items.length} ${items.length === 1 ? 'test' : 'tests'}`;
+
+        // Render Packages
+        if (packageItems.length > 0) {
+            document.getElementById('packagesSection').style.display = 'block';
+            packagesGrid.style.gridTemplateColumns = '1fr'; // Force column layout for wide cards
+            packageItems.forEach(test => createHorizontalCard(test, packagesGrid));
+        } else {
+            document.getElementById('packagesSection').style.display = 'none';
+        }
+
+        // Render Single Tests
+        if (singleItems.length > 0) {
+            document.getElementById('singleTestsSection').style.display = 'block';
+            singleItems.forEach(test => createCard(test, testGrid));
+        } else {
+            document.getElementById('singleTestsSection').style.display = 'none';
+        }
+    }
+
+    function createHorizontalCard(test, container) {
+        const card = document.createElement('div');
+        card.className = 'glass-card fade-up';
+        card.style.position = 'relative';
+        card.style.overflow = 'hidden';
+        card.style.cursor = 'pointer';
+        card.style.display = 'grid';
+        card.style.gridTemplateColumns = '250px 1fr 180px';
+        card.style.gap = '2rem';
+        card.style.alignItems = 'center';
+        card.style.padding = '2rem';
+
+        const discount = test.original_price ? Math.round(((test.original_price - test.price) / test.original_price) * 100) : 0;
+
+        let originalPriceHtml = '';
+        if (test.original_price) {
+            originalPriceHtml = '<div style="text-decoration: line-through; color: var(--text-muted); font-size: 0.9rem;">MRP ₹' + test.original_price + '</div>';
+        }
+
+        let discountHtml = '';
+        if (discount > 0) {
+            discountHtml = '<div style="color: #16a34a; font-weight: 600; font-size: 0.85rem;">' + discount + '% OFF</div>';
+        }
+
+        const componentsList = test.components.split('•').filter(c => c.trim()).map(c => {
+            const formatted = c.replace(':', ':</b>').replace('Includes', '<b>Includes').replace(/Checking|Checks/g, '');
+            return '<div style="display: flex; align-items: flex-start; gap: 0.5rem;"><span style="color: var(--primary);">✓</span> ' + formatted + '</div>';
+        }).join('');
+
+        card.innerHTML =
+            '<div style="position: absolute; top: 0; left: 0; bottom: 0; width: 6px; background: linear-gradient(180deg, var(--secondary), var(--primary));"></div>' +
+            '<div style="text-align: center; padding-right: 1rem; border-right: 1px solid #e2e8f0;">' +
+            '<span class="badge" style="background: var(--primary); color: white; margin-bottom: 0.5rem; display: inline-block;">' + test.category + '</span>' +
+            '<h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--text-main);">' + test.name + '</h3>' +
+            '<div style="margin-top: 1rem;">' +
+            originalPriceHtml +
+            '<div style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">₹' + test.price + '</div>' +
+            (test.price > 499 ? '<div style="font-size: 0.75rem; color: #16a34a; font-weight: 700; margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 4px;">🚚 Free Home Visit</div>' : '') +
+            discountHtml +
+            '</div>' +
+            '</div>' +
+            '<div style="text-align: left;">' +
+            '<h4 style="margin-bottom: 0.5rem; color: var(--secondary); font-size: 1rem;">Package Includes:</h4>' +
+            '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">' +
+            componentsList +
+            '</div>' +
+            '<div style="margin-top: 1rem; font-style: italic; color: var(--text-light); font-size: 0.85rem;">' +
+            test.description +
+            '</div>' +
+            '</div>' +
+            '<div style="display: flex; flex-direction: column; gap: 1rem; padding-left: 1rem; border-left: 1px solid #e2e8f0;">' +
+            '<div style="text-align: center;">' +
+            '<span style="font-size: 0.85rem; color: var(--text-muted); display: block;">Report In</span>' +
+            '<span style="font-weight: 600; color: var(--text-main);">' + test.tat + '</span>' +
+            '</div>' +
+            '<button onclick="event.stopPropagation(); bookTest(\'' + test.name.replace(/'/g, "\\'") + '\')" class="btn" style="width: 100%; justify-content: center;">' +
+            'Book Now' +
+            '</button>' +
+            '</div>';
+
+        // Responsive Fix (Inject dynamically if needed, or rely on global CSS)
+        // Ideally we add a class and simple CSS. Let's keep inline for now but checking width might be flaky.
+        // Better to add a <style> block to handle .package-card specific layouts.
+
+        container.appendChild(card);
+    }
+
+    function createCard(test, container) {
+        const card = document.createElement('div');
+        card.className = 'glass-card fade-up';
+        card.style.position = 'relative';
+        card.style.overflow = 'hidden';
+        card.style.cursor = 'pointer';
+
+        card.onclick = (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                openModal(test);
+            }
+        };
+
+        card.innerHTML = `
+                <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--secondary), var(--primary));"></div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                    <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <span class="badge" style="background: rgba(14, 116, 144, 0.1); color: var(--primary); margin-bottom: 0;">${test.category}</span>
+                        ${test.price > 499 ? '<span style="font-size: 0.7rem; color: #16a34a; font-weight: 700; margin-top: 4px; display: flex; align-items: center; gap: 4px;">🚚 Free Home Visit</span>' : ''}
+                    </div>
+                    <span style="font-weight: 700; color: var(--text-main); font-size: 1.25rem;">₹${test.price}</span>
+                </div>
+                
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-main); line-height: 1.4;">${test.name}</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.5rem; height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                    ${test.description}
+                </p>
+                
+                <button onclick="event.stopPropagation(); bookTest('${test.name}')" class="btn" style="width: 100%; justify-content: center; font-size: 0.9rem;">
+                    Book Now
+                </button>
+                <div style="text-align: center; margin-top: 0.5rem; font-size: 0.8rem; color: var(--primary); font-weight: 500;">
+                    Tap to view details
+                </div>
+            `;
+        container.appendChild(card);
+    }
+
+    // Modal Logic
+    let currentTestName = '';
+
+    function openModal(test) {
+        currentTestName = test.name;
+        document.getElementById('modalTitle').textContent = test.name;
+        document.getElementById('modalCategory').textContent = test.category;
+        document.getElementById('modalPrice').textContent = `₹${test.price}`;
+        document.getElementById('modalDesc').textContent = test.description;
+        document.getElementById('modalComponents').textContent = test.components;
+        document.getElementById('modalSignificance').textContent = test.significance;
+        document.getElementById('modalSample').textContent = test.sample;
+        document.getElementById('modalTAT').textContent = test.tat;
+
+        document.getElementById('testModal').classList.add('active');
+        document.body.style.overflow = 'hidden'; // Stop scrolling
+    }
+
+    function closeModal(e) {
+        if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('close-btn')) {
+            document.getElementById('testModal').classList.remove('active');
+            document.body.style.overflow = 'auto'; // Resume scrolling
+        }
+    }
+
+    function bookCurrentTest() {
+        bookTest(currentTestName);
+    }
+
+    // Initial Render
+    renderTests(tests);
+
+    // Search & Filter Logic
+    function filterTests() {
+        const query = document.getElementById('testSearch').value.toLowerCase();
+        const category = document.getElementById('categoryFilter').value;
+
+        const filtered = tests.filter(test => {
+            const matchesSearch = test.name.toLowerCase().includes(query) ||
+                test.description.toLowerCase().includes(query) ||
+                test.components.toLowerCase().includes(query);
+            const matchesCategory = category === 'all' || test.category === category;
+
+            return matchesSearch && matchesCategory;
+        });
+
+        renderTests(filtered);
+    }
+
+    document.getElementById('testSearch').addEventListener('input', filterTests);
+    document.getElementById('categoryFilter').addEventListener('change', filterTests);
+
+    function setSearch(term) {
+        document.getElementById('testSearch').value = term;
+        document.getElementById('categoryFilter').value = 'all';
+        filterTests();
+        window.scrollTo({ top: document.querySelector('.glass-card').offsetTop - 100, behavior: 'smooth' });
+    }
+
+    function resetSearch() {
+        document.getElementById('testSearch').value = '';
+        document.getElementById('categoryFilter').value = 'all';
+        filterTests();
+    }
+
+    function bookTest(testName) {
+        // Redirect to booking page with test name pre-filled
+        window.location.href = "{{ url_for('book_home_visit') }}?service=sample_collection&test=" + encodeURIComponent(testName);
+    }
+</script>
+
+<style>
+    /* Responsive Grid Adjustments */
+    @media (max-width: 768px) {
+        .test-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        div[style*="grid-template-columns: 1fr 200px auto"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - Jams Homecare{% endblock %}
+
+{% block content %}
+<section style="padding: 4rem 0; background: #f8fafc; min-height: 85vh;">
+    <div class="container">
+        <!-- Header -->
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="color: var(--secondary); font-size: 2rem; margin-bottom: 0.5rem;">My Bookings</h1>
+                <p style="color: var(--text-muted);">Welcome back, <strong>{{ current_user.name }}</strong></p>
+            </div>
+            <a href="{{ url_for('book_home_visit') }}" class="btn">
+                <span>➕ New Booking</span>
+            </a>
+        </div>
+
+        <!-- Stats (Optional) -->
+        <!-- <div class="glass-card" style="margin-bottom: 2rem; padding: 1.5rem; display: flex; gap: 2rem;">
+            <div>
+                <span style="display: block; color: var(--text-muted); font-size: 0.9rem;">Total Bookings</span>
+                <span style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">{{ bookings|length }}</span>
+            </div>
+        </div> -->
+
+        <!-- Booking List -->
+        {% if bookings %}
+        <div style="display: grid; gap: 1.5rem;">
+            {% for booking in bookings %}
+            <div class="glass-card fade-up"
+                style="padding: 1.5rem; border-left: 4px solid {% if booking.status == 'completed' %}#16a34a{% elif booking.status == 'cancelled' %}#ef4444{% else %}#eab308{% endif %};">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+
+                    <!-- Left Info -->
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">#HHC{{ "%04d" |
+                                format(booking.id) }}</span>
+                            <span class="badge" style="
+                                    background: {% if booking.status == 'completed' %}rgba(22, 163, 74, 0.1){% elif booking.status == 'cancelled' %}rgba(239, 68, 68, 0.1){% else %}rgba(234, 179, 8, 0.1){% endif %};
+                                    color: {% if booking.status == 'completed' %}#16a34a{% elif booking.status == 'cancelled' %}#ef4444{% else %}#ca8a04{% endif %};
+                                    text-transform: uppercase;">
+                                {{ booking.status }}
+                            </span>
+                        </div>
+                        <h3 style="font-size: 1rem; color: var(--secondary); margin-bottom: 0.25rem;">
+                            {{ booking.service_type.replace('_', ' ').title() }}
+                        </h3>
+                        {% if booking.test_name %}
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Test: {{ booking.test_name }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Right Info -->
+                    <div style="text-align: right; min-width: 150px;">
+                        <div style="font-size: 0.95rem; color: var(--text-main); font-weight: 600;">{{
+                            booking.preferred_date.strftime('%d %b %Y') }}</div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">{{
+                            booking.preferred_time.strftime('%I:%M %p') }}</div>
+                        <div style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-light);">
+                            Patient: {{ booking.patient_name }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="glass-card" style="text-align: center; padding: 4rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">📅</div>
+            <h3 style="color: var(--text-main);">No bookings yet</h3>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Book your first home visit or lab test today.
+            </p>
+            <a href="{{ url_for('book_home_visit') }}" class="btn btn-secondary">Book Now</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

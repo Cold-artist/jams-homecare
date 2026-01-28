@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Secure Checkout - Jams Homecare{% endblock %}
+
+{% block content %}
+<div style="background-color: #f8fafc; min-height: 100vh; padding: 4rem 1rem;">
+    <div class="container" style="max-width: 1000px; margin: 0 auto;">
+
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: start;">
+
+            <!-- LEFT COLUMN: Booking Summary -->
+            <div class="glass-card fade-up"
+                style="background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);">
+                <h2
+                    style="font-size: 1.25rem; color: #1e293b; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: #64748b;">📋</span> Order Summary
+                </h2>
+
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Medical
+                        Service</h3>
+                    <p style="color: #64748b; font-size: 0.95rem;">For {{ booking.patient_name }}</p>
+                </div>
+
+                <div
+                    style="border-top: 1px dashed #e2e8f0; border-bottom: 1px dashed #e2e8f0; padding: 1.5rem 0; margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span style="color: #475569;">Consultation Fee</span>
+                        <span style="font-weight: 600; color: #334155;">₹499.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span style="color: #475569;">Convenience Fee</span>
+                        <span style="font-weight: 600; color: #16a34a;">FREE</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f1f5f9;">
+                        <span>Total Payable</span>
+                        <span>₹499.00</span>
+                    </div>
+                </div>
+
+                <div
+                    style="background: #eff6ff; padding: 1rem; border-radius: 8px; display: flex; gap: 1rem; align-items: center;">
+                    <div style="font-size: 1.5rem;">🛡️</div>
+                    <div>
+                        <h4 style="font-size: 0.9rem; font-weight: 600; color: #1e40af; margin-bottom: 0.2rem;">Verified
+                            Booking</h4>
+                        <p style="font-size: 0.8rem; color: #60a5fa; margin: 0;">ID: #HHC{{ booking.id }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Payment Options -->
+            <div class="fade-up delay-1">
+                <h2 style="font-size: 1.25rem; color: #1e293b; margin-bottom: 1.5rem;">Select Payment Method</h2>
+
+                <div style="display: grid; gap: 1rem;">
+
+                    <!-- UPI Option -->
+                    <div onclick="triggerPayment('upi')" class="payment-card"
+                        style="background: white; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div
+                                style="width: 40px; height: 40px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                📱</div>
+                            <div>
+                                <h4 style="font-size: 1rem; font-weight: 600; color: #334155; margin-bottom: 0.2rem;">
+                                    UPI / QR Code</h4>
+                                <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">GooglePay, PhonePe, Paytm</p>
+                            </div>
+                        </div>
+                        <span style="color: #cbd5e1;">➔</span>
+                    </div>
+
+                    <!-- Card Option -->
+                    <div onclick="triggerPayment('card')" class="payment-card"
+                        style="background: white; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div
+                                style="width: 40px; height: 40px; background: #fff7ed; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                💳</div>
+                            <div>
+                                <h4 style="font-size: 1rem; font-weight: 600; color: #334155; margin-bottom: 0.2rem;">
+                                    Credit / Debit Card</h4>
+                                <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">Visa, Mastercard, RuPay</p>
+                            </div>
+                        </div>
+                        <span style="color: #cbd5e1;">➔</span>
+                    </div>
+
+                    <!-- Netbanking Option -->
+                    <div onclick="triggerPayment('netbanking')" class="payment-card"
+                        style="background: white; padding: 1.25rem; border-radius: 12px; border: 1px solid #e2e8f0; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div
+                                style="width: 40px; height: 40px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                🏦</div>
+                            <div>
+                                <h4 style="font-size: 1rem; font-weight: 600; color: #334155; margin-bottom: 0.2rem;">
+                                    Netbanking</h4>
+                                <p style="font-size: 0.8rem; color: #94a3b8; margin: 0;">All Indian Banks Supported</p>
+                            </div>
+                        </div>
+                        <span style="color: #cbd5e1;">➔</span>
+                    </div>
+
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <img src="{{ url_for('static', filename='images/payment_trust_banner.png') }}" alt="Trust Banner"
+                        style="width: 100%; border-radius: 8px; opacity: 0.9;">
+                    <p style="text-align: center; font-size: 0.75rem; color: #94a3b8; margin-top: 1rem;">
+                        Your payment information is encrypted and secure with 128-bit SSL.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .payment-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(14, 116, 144, 0.1);
+        transform: translateY(-2px);
+    }
+</style>
+
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var orderId = "{{ order.id }}";
+    var options = {
+        "key": "{{ key_id }}",
+        "amount": "{{ order.amount }}",
+        "currency": "INR",
+        "name": "Jams Homecare",
+        "description": "Booking #HHC{{ booking.id }}",
+        "image": "{{ url_for('static', filename='images/logo.png') }}",
+        "order_id": orderId,
+        "callback_url": "{{ url_for('payment_verify', booking_id=booking.id, _external=True) }}",
+        "prefill": {
+            "name": "{{ booking.patient_name }}",
+            "email": "{{ booking.email }}",
+            "contact": "{{ booking.mobile }}"
+        },
+        "theme": { "color": "#0e7490" }
+    };
+
+    function triggerPayment(method_hint) {
+
+        // In Simulation Mode -> Simulate Success directly
+        if (orderId.startsWith("order_mock_")) {
+            simulateSuccess();
+            return;
+        }
+
+        // In Real Mode -> Open Razorpay with specific method preference if supported
+        // Razorpay standard checkout handles method selection internally, 
+        // but clicking these buttons gives the user the *feeling* of choice.
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+    }
+
+    function simulateSuccess() {
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "{{ url_for('payment_verify', booking_id=booking.id, _external=True) }}";
+
+        var fields = {
+            "razorpay_order_id": orderId,
+            "razorpay_payment_id": "pay_mock_" + Date.now(),
+            "razorpay_signature": "mock_signature"
+        };
+
+        for (var key in fields) {
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = fields[key];
+            form.appendChild(input);
+        }
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+{% endblock %}

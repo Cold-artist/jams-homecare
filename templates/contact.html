@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - Jams Homecare{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top: 8rem;">
+    <div class="container">
+        <div class="glass-card fade-up" style="max-width: 800px; margin: 0 auto;">
+            <h1 style="text-align: center; margin-bottom: 2rem; color: var(--secondary);">Get in Touch</h1>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem;">
+                <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px;">
+                    <h3 style="margin-bottom: 1rem;">Contact Info</h3>
+                    <p style="margin-bottom: 0.5rem;"><strong>📞 Phone:</strong> +91 97589 28213</p>
+                    <p style="margin-bottom: 0.5rem;"><strong>📧 Email:</strong> jamshomecare@gmail.com</p>
+                    <p><strong>📍 Location:</strong> Haldwani, Uttarakhand</p>
+                </div>
+                <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px;">
+                    <h3 style="margin-bottom: 1rem;">Working Hours</h3>
+                    <p style="margin-bottom: 0.5rem;"><strong>Mon - Sat:</strong> 8:00 AM - 9:00 PM</p>
+                    <p style="margin-bottom: 0.5rem;"><strong>Sunday:</strong> 9:00 AM - 5:00 PM</p>
+                    <p style="color: var(--primary);">*Emergency support available 24/7</p>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 1.5rem;">Send us a message</h3>
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control", placeholder="Your Full Name") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.phone.label(class="form-label") }}
+                    {{ form.phone(class="form-control", placeholder="Mobile Number") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.service.label(class="form-label") }}
+                    {{ form.service(class="form-control") }}
+                </div>
+
+                <div class="form-group">
+                    {{ form.message.label(class="form-label") }}
+                    {{ form.message(class="form-control", rows="4", placeholder="How can we help you?") }}
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    {{ form.submit(class="btn", style="width: 100%; padding: 1rem;") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

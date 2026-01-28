@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Home Healthcare{% endblock %}
+
+{% block content %}
+<section style="padding: 8rem 0 6rem; background: #f8fafc; min-height: 100vh;">
+    <div class="container">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+            <div>
+                <span class="badge">Internal Use Only</span>
+                <h1 style="font-size: 2.5rem; color: var(--text-main);">Admin Dashboard</h1>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button onclick="location.reload()" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Refresh
+                    Data</button>
+                <a href="{{ url_for('logout') }}" class="btn"
+                    style="padding: 0.5rem 1rem; font-size: 0.9rem; background: #ef4444; color: white;">Logout</a>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+            <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid var(--primary);">
+                <div style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">TOTAL
+                    BOOKINGS</div>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--secondary);">{{ bookings|length }}</div>
+                <div style="font-size: 0.85rem; color: var(--success); margin-top: 0.5rem;">Lifetime registrations</div>
+            </div>
+            <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid var(--warning);">
+                <div style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">
+                    PENDING INQUIRIES</div>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--secondary);">{{ inquiries|length }}</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Messages to reply</div>
+            </div>
+            <div class="glass-card" style="padding: 1.5rem; border-left: 4px solid var(--success);">
+                <div style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">EST.
+                    REVENUE</div>
+                <div style="font-size: 2.5rem; font-weight: 700; color: var(--secondary);">₹{{ bookings|length * 500 }}
+                </div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Approx. (₹500 avg/visit)
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings Section -->
+        <div class="glass-card" style="padding: 2rem; border-radius: 16px; margin-bottom: 4rem;">
+            <h2
+                style="font-size: 1.75rem; color: var(--secondary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                📅 Recent Bookings
+                <span
+                    style="font-size: 1rem; background: var(--primary); color: white; padding: 0.2rem 0.6rem; border-radius: 99px;">
+                    {{ bookings|length }}
+                </span>
+            </h2>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; min-width: 900px;">
+                    <thead>
+                        <tr style="background: rgba(14, 116, 144, 0.05); text-align: left;">
+                            <th style="padding: 1rem;">ID</th>
+                            <th style="padding: 1rem;">Patient</th>
+                            <th style="padding: 1rem;">Service/Test</th>
+                            <th style="padding: 1rem;">Date/Time</th>
+                            <th style="padding: 1rem;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem; font-weight: 600;">#{{ booking.id }}</td>
+                            <td style="padding: 1rem;">
+                                <div style="font-weight: 500;">{{ booking.patient_name }}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ booking.mobile }}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">{{ booking.area }}</div>
+                            </td>
+                            <td style="padding: 1rem;">{{ booking.service_type }}<br>
+                                {% if booking.test_name %}<small style="color: var(--primary);">{{ booking.test_name
+                                    }}</small>{% endif %}
+                            </td>
+                            <td style="padding: 1rem;">
+                                {{ booking.preferred_date }}<br>
+                                <small>{{ booking.preferred_time }}</small>
+                            </td>
+                            <td style="padding: 1rem;">
+                                {% set badge_bg = '#e0f2fe' %}
+                                {% set badge_text = '#0369a1' %}
+                                {% if booking.status == 'pending' %}
+                                {% set badge_bg = '#fff7ed' %}
+                                {% set badge_text = '#c2410c' %}
+                                {% elif booking.status == 'completed' %}
+                                {% set badge_bg = '#f0fdf4' %}
+                                {% set badge_text = '#15803d' %}
+                                {% endif %}
+                                <span class="badge"
+                                    style="margin: 0; background: {{ badge_bg }}; color: {{ badge_text }};">
+                                    {{ booking.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="padding: 2rem; text-align: center;">No bookings found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Inquiries Section -->
+        <div class="glass-card" style="padding: 2rem; border-radius: 16px;">
+            <h2
+                style="font-size: 1.75rem; color: var(--secondary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                💬 Message Enquiries
+                <span
+                    style="font-size: 1rem; background: var(--primary); color: white; padding: 0.2rem 0.6rem; border-radius: 99px;">{{
+                    inquiries|length }}</span>
+            </h2>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+                    <thead>
+                        <tr style="background: rgba(14, 116, 144, 0.05); text-align: left;">
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Date</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Name</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Phone</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Interest</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Message</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inquiry in inquiries %}
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem; font-size: 0.9rem;">{{ inquiry.created_at.strftime('%Y-%m-%d') }}
+                            </td>
+                            <td style="padding: 1rem; font-weight: 500;">{{ inquiry.name }}</td>
+                            <td style="padding: 1rem; font-family: monospace;">{{ inquiry.phone }}</td>
+                            <td style="padding: 1rem;">
+                                <span
+                                    style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-size: 0.9rem;">{{
+                                    inquiry.service }}</span>
+                            </td>
+                            <td style="padding: 1rem; color: var(--text-muted); max-width: 300px;">{{ inquiry.message }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" style="padding: 2rem; text-align: center; color: var(--text-muted);">No
+                                messages found yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}

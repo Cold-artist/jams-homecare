@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}About Us - Clinic-Supervised Healthcare{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="padding: 8rem 0 4rem; background: radial-gradient(circle at 100% 0%, #ecfeff 0%, transparent 60%);">
+    <div class="container text-center">
+        <span class="badge fade-up">Our Mission</span>
+        <h1 class="fade-up delay-1"
+            style="font-size: 3.5rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+            Bridging the Gap<br>Between Clinic & Home.
+        </h1>
+        <p class="fade-up delay-2"
+            style="font-size: 1.25rem; color: var(--text-muted); max-width: 800px; margin: 0 auto 3rem;">
+            We are not just a service aggregator. We are a team of licensed pharmacists and healthcare professionals
+            committed to delivering clinic-quality care at your doorstep in Haldwani.
+        </p>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section style="padding: 2rem 0 6rem;">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <div class="glass-card fade-up delay-3">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🏥</div>
+                <h3>Clinic-Backed Model</h3>
+                <p style="color: var(--text-muted);">
+                    Unlike generic apps, every service we provide is overseen by a physical clinic and licensed
+                    professionals. We follow strict hospital-grade protocols.
+                </p>
+            </div>
+            <div class="glass-card fade-up delay-4">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">📜</div>
+                <h3>Protocol Driven</h3>
+                <p style="color: var(--text-muted);">
+                    We never compromise on safety. Prescriptions are mandatory for medical procedures, and hygiene is
+                    our top priority.
+                </p>
+            </div>
+            <div class="glass-card fade-up delay-5">
+                <div style="font-size: 2.5rem; margin-bottom: 1rem;">🤝</div>
+                <h3>Local & Trusted</h3>
+                <p style="color: var(--text-muted);">
+                    Rooted in Haldwani, we understand the local healthcare needs and aim to build lasting relationships
+                    with our patients.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team/Stats Section -->
+<section style="padding: 4rem 0; background: white;">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+            <div class="fade-up">
+                <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem;">Led by Licensed<br><span
+                        style="color: var(--primary);">Pharmacists.</span></h2>
+                <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2rem;">
+                    Our team is our strength. We ensure that every staff member visiting your home is verified, trained,
+                    and professionally supervised.
+                </p>
+
+                <div style="display: grid; gap: 1.5rem;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <div
+                            style="width: 48px; height: 48px; background: #ecfeff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 700;">
+                            1</div>
+                        <div>
+                            <div style="font-weight: 700; color: var(--text-main);">Clinical Verification</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted);">Every prescription is checked
+                                before service.</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <div
+                            style="width: 48px; height: 48px; background: #ecfeff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 700;">
+                            2</div>
+                        <div>
+                            <div style="font-weight: 700; color: var(--text-main);">Trained Staff</div>
+                            <div style="font-size: 0.9rem; color: var(--text-muted);">Phlebotomists and nurses with 2+
+                                years experience.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card fade-up delay-2"
+                style="background: linear-gradient(135deg, var(--surface) 0%, white 100%); border: 1px solid var(--border);">
+                <div style="text-align: center; padding: 2rem;">
+                    <img src="{{ url_for('static', filename='images/pharmacist.png') }}" alt="Clinical Supervisor"
+                        style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin: 0 auto 1rem; border: 4px solid white; box-shadow: var(--shadow-md);">
+                    <h3 style="margin-bottom: 0.5rem;">Clinical Supervisor</h3>
+                    <p style="color: var(--primary); font-weight: 600; margin-bottom: 1rem;">Licensed Pharmacist</p>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">
+                        "Our goal is to ensure that home healthcare is as just as safe and reliable as hospital care. We
+                        treat every patient like our own family."
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section style="padding: 6rem 0;">
+    <div class="container text-center">
+        <h2>Experience Professional Care</h2>
+        <p style="margin-bottom: 2rem; color: var(--text-muted);">Ready to book a service or have a question?</p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{{ url_for('book_home_visit') }}" class="btn">Book Now</a>
+            <a href="{{ url_for('contact') }}" class="btn btn-secondary">Contact Us</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

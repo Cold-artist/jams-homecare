@@ -1,0 +1,26 @@
+# Python internals
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+.env
+
+# Database (Do not upload local DB to prod)
+*.db
+*.sqlite3
+instance/
+migrations/
+
+# IDE settings
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
+
+# Windows thumbnail cache
+Thumbs.db

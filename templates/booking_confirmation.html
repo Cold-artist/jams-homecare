@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Booking Confirmed - Jams Homecare Services{% endblock %}
+
+{% block content %}
+<section class="hero" style="padding: 3rem 0;">
+    <div class="container">
+        <h1 class="fade-in">Booking Confirmed!</h1>
+        <p class="fade-in delay-1">Your home visit has been scheduled. Our team will verify your details and contact you
+            soon.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div style="max-width: 600px; margin: 0 auto;">
+            <div class="card fade-in">
+                <h2 style="color: var(--success); margin-bottom: 1.5rem;">✓ Booking Submitted Successfully</h2>
+
+                <div style="background: var(--light-blue); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                    <h3 style="margin-bottom: 1rem; color: var(--gray-900);">Booking Details</h3>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <p><strong>Booking ID:</strong> {{ booking.id }}</p>
+                        <p><strong>Patient Name:</strong> {{ booking.patient_name }}</p>
+                        <p><strong>Age:</strong> {{ booking.age }} years</p>
+                        <p><strong>Mobile:</strong> {{ booking.mobile }}</p>
+                        <p><strong>Address:</strong> {{ booking.address }}, {{ booking.area }}{% if booking.landmark %}
+                            ({{ booking.landmark }}){% endif %}</p>
+                        <p><strong>Service:</strong> {{ service_name }}</p>
+                        <p><strong>Preferred Date:</strong> {{ booking.preferred_date.strftime('%d/%m/%Y') }}</p>
+                        <p><strong>Preferred Time:</strong> {{ booking.preferred_time.strftime('%I:%M %p') }}</p>
+                        {% if booking.prescription_path %}
+                        <p><strong>Prescription:</strong> ✓ Uploaded</p>
+                        {% else %}
+                        <p><strong>Prescription:</strong> Not uploaded (Please bring original prescription)</p>
+                        {% endif %}
+                        <p><strong>Status:</strong> <span style="color: var(--warning);">Pending Verification</span></p>
+                    </div>
+                </div>
+
+                <div class="alert alert-success">
+                    <h4>What Happens Next?</h4>
+                    <ol style="margin: 1rem 0; padding-left: 1.5rem;">
+                        <li>Our clinic team will verify your prescription within 2 hours</li>
+                        <li>We'll confirm the booking and assign appropriate staff</li>
+                        <li>You'll receive a confirmation call on your registered mobile number</li>
+                        <li>Our healthcare professional will visit at the scheduled time</li>
+                    </ol>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <a href="{{ whatsapp_url }}" target="_blank" class="btn"
+                        style="background: #25D366; border-color: #25D366; margin-right: 1rem;">
+                        📱 Contact via WhatsApp
+                    </a>
+                    <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                        Return to Home
+                    </a>
+                </div>
+            </div>
+
+            <div class="disclaimer fade-in delay-1" style="margin-top: 2rem;">
+                <h4>Important Reminders</h4>
+                <p><strong>Prescription Verification:</strong> All medical services require valid prescriptions. Please
+                    ensure you have the original prescription ready.</p>
+                <p><strong>Payment:</strong> Payments are collected in cash or UPI at the time of service.</p>
+                <p><strong>Cancellation:</strong> Please inform us at least 2 hours before the scheduled time if you
+                    need to cancel or reschedule.</p>
+                <p><strong>Privacy:</strong> Your personal and medical information is kept strictly confidential.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
