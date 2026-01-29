@@ -719,7 +719,7 @@ def seed_production_data():
             if not LabTest.query.first(): # 2. Check if Empty
                 app.logger.info("Database Empty! Seeding Initial Lab Data...")
                 
-                # Max Lab Packages (Hardcoded for reliability)
+                # Max Lab Packages (Full Catalog)
                 packages = [
                     {
                         "name": "Max Care Health Check 1",
@@ -753,10 +753,60 @@ def seed_production_data():
                         "significance": "Detects silent deficiencies.",
                         "tat": "24-48 Hours",
                         "sample_type": "Blood"
+                    },
+                     {
+                        "name": "Max Care Health Check 3 (Couple Pack)",
+                        "category": "Health Packages",
+                        "price": 4000,
+                        "original_price": 8200,
+                        "description": "1+1 Family Offer for Check 3 (Save ₹500).",
+                        "components": "• Complete Max Care Health Check 3 for TWO Persons.",
+                        "significance": "Best Value: Complete protection for you and your partner.",
+                        "tat": "24-48 Hours",
+                        "sample_type": "Blood"
+                    },
+                    {
+                        "name": "Max Care Health Check 4",
+                        "category": "Health Packages",
+                        "price": 2700,
+                        "original_price": 4900,
+                        "description": "Extensive profile with Inflammation & Urine markers.",
+                        "components": "• All in Check 3 PLUS:\n• CRP (C-Reactive Protein)\n• Urine Routine & Microscopy\n• Electrolytes",
+                        "significance": "Deep screening for infection, inflammation.",
+                        "tat": "24-48 Hours",
+                        "sample_type": "Blood & Urine"
+                    },
+                    {
+                        "name": "Max Care Health Check 5",
+                        "category": "Health Packages",
+                        "price": 3200,
+                        "original_price": 6400,
+                        "description": "Premium Executive Profile with Cardiac & Pancreas markers.",
+                        "components": "• All in Check 4 PLUS:\n• Cardiac Markers: Lp(a), Apo-A1, Apo-B, hs-CRP\n• Pancreas: Amylase, Lipase\n• Arthritis: RA Factor",
+                        "significance": "The most detailed health audit available.",
+                        "tat": "48 Hours",
+                        "sample_type": "Blood & Urine"
                     }
                 ]
                 
-                for t in packages:
+                # Single Tests
+                single_tests = [
+                    {"name": "CBC (Complete Blood Count)", "category": "Routine", "price": 350, "description": "Checks Hemoglobin, RBC, WBC, Platelets.", "components": "Hb, TLC, DLC, Platelet Count", "significance": "General health, infection, anemia."},
+                    {"name": "Thyroid Profile (Total)", "category": "Thyroid", "price": 550, "description": "T3, T4, and TSH levels.", "components": "Total T3, Total T4, TSH", "significance": "Thyroid disorders."},
+                    {"name": "Lipid Profile", "category": "Heart", "price": 650, "description": "Cholesterol and Triglycerides.", "components": "Total Cholesterol, Triglycerides, HDL, LDL", "significance": "Heart health risk."},
+                    {"name": "HbA1c", "category": "Diabetes", "price": 500, "description": "Average blood sugar (3 months).", "components": "Glycosylated Haemoglobin", "significance": "Diabetes management."},
+                    {"name": "Liver Function Test (LFT)", "category": "Routine", "price": 850, "description": "Checks liver health.", "components": "Bilirubin, SGOT, SGPT, ALP, Protein", "significance": "Liver damage."},
+                    {"name": "Kidney Function Test (KFT)", "category": "Routine", "price": 850, "description": "Checks kidney performance.", "components": "Urea, Creatinine, Uric Acid", "significance": "Kidney health."},
+                    {"name": "Vitamin D (Total)", "category": "Vitamins", "price": 1000, "description": "Bone health vitamin.", "components": "25-OH Vitamin D", "significance": "Bone weakness, fatigue."},
+                    {"name": "Vitamin B12", "category": "Vitamins", "price": 1000, "description": "Nerve health vitamin.", "components": "Cyanocobalamin", "significance": "Nerve issues, anemia."},
+                    {"name": "Urine Routine & Microscopy", "category": "Routine", "price": 200, "description": "Basic urine exam.", "components": "Physical, Chemical, Microscopic", "significance": "UTI, kidney issues."},
+                    {"name": "Dengue NS1 Antigen", "category": "Fever", "price": 600, "description": "Early dengue detection.", "components": "Dengue NS1", "significance": "Fever diagnosis."},
+                    {"name": "Typhoid (Widal)", "category": "Fever", "price": 250, "description": "Typhoid fever check.", "components": "Salmonella Typhi Antibodies", "significance": "Fever diagnosis."},
+                    {"name": "CRP (C-Reactive Protein)", "category": "Heart", "price": 450, "description": "Inflammation marker.", "components": "CRP Quantitative", "significance": "Infection or inflammation."}
+                ]
+                
+                # Add all
+                for t in packages + single_tests:
                     test = LabTest(**t)
                     db.session.add(test)
                 
