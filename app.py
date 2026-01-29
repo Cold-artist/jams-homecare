@@ -78,6 +78,8 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db) # Initialize Flask-Migrate
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -670,7 +672,66 @@ def admin_dashboard():
     inquiries = Inquiry.query.order_by(Inquiry.created_at.desc()).all()
     return render_template('admin.html', bookings=bookings, inquiries=inquiries)
 
+# --- DEPLOYMENT AUTO-SEEDING (CRITICAL FOR RENDER) ---
+def seed_production_data():
+    """Populates the database with initial Lab Tests if empty."""
+    try:
+        with app.app_context():
+            db.create_all() # 1. Create Tables
+            
+            if not LabTest.query.first(): # 2. Check if Empty
+                app.logger.info("Database Empty! Seeding Initial Lab Data...")
+                
+                # Max Lab Packages (Hardcoded for reliability)
+                packages = [
+                    {
+                        "name": "Max Care Health Check 1",
+                        "category": "Health Packages",
+                        "price": 999,
+                        "original_price": 1800,
+                        "description": "Essential full body screening covering 37 Parameters.",
+                        "components": "• Diabetes: Fasting Blood Sugar\n• Heart/Lipid Profile: Cholesterol, Triglycerides\n• Thyroid: T3, T4, TSH\n• Kidney: Uric Acid\n• Bone: Calcium",
+                        "significance": "Essential baseline checkup.",
+                        "tat": "24 Hours",
+                        "sample_type": "Blood"
+                    },
+                    {
+                        "name": "Max Care Health Check 2",
+                        "category": "Health Packages",
+                        "price": 1250,
+                        "original_price": 2400,
+                        "description": "Comprehensive screening with Liver & Kidney functions.",
+                        "components": "• All in Check 1 PLUS:\n• HbA1c\n• Liver Function Test (LFT)\n• Kidney Function Test (KFT)\n• Hemogram",
+                        "significance": "Recommended for annual screening.",
+                        "tat": "24 Hours",
+                        "sample_type": "Blood & Urine"
+                    },
+                    {
+                        "name": "Max Care Health Check 3",
+                        "category": "Health Packages",
+                        "price": 2250,
+                        "original_price": 4100,
+                        "description": "Advanced profile including Vitamins.",
+                        "components": "• All in Check 2 PLUS:\n• Vitamin D (Total)\n• Vitamin B12\n• Iron Studies",
+                        "significance": "Detects silent deficiencies.",
+                        "tat": "24-48 Hours",
+                        "sample_type": "Blood"
+                    }
+                ]
+                
+                for t in packages:
+                    test = LabTest(**t)
+                    db.session.add(test)
+                
+                db.session.commit()
+                app.logger.info("Seeding Complete: Added Max Lab Packages.")
+            else:
+                app.logger.info("Database already populated.")
+    except Exception as e:
+        app.logger.error(f"Seeding Failed: {e}")
+
+# Run Seeding on Module Import (Gunicorn loads this)
+seed_production_data()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True, host='0.0.0.0', port=8000)
