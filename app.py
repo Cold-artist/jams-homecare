@@ -713,6 +713,17 @@ def health_check():
     
     return status
 
+@app.route('/reset_db_force')
+def reset_db_force():
+    """Nuclear option to fix schema mismatches on Render."""
+    try:
+        db.drop_all()
+        db.create_all()
+        seed_production_data()
+        return "<h1>Database Reset Successful</h1><p>All tables dropped and recreated. New Schema applied. <a href='/'>Go Home</a></p>"
+    except Exception as e:
+        return f"Reset Failed: {e}"
+
 @app.route('/logout')
 def logout():
     logout_user()
