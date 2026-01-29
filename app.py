@@ -46,8 +46,8 @@ app.logger.info('Homecare Startup')
 
 # --- RAZORPAY CONFIGURATION ---
 # Using Test Credentials for Development (Replace with Env Vars in Prod)
-RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_ChangeMe123') 
-RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', 'secret_ChangeMe123')
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID') 
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET')
 
 razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
