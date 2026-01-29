@@ -510,23 +510,27 @@ def payment_success(booking_id):
 
 @app.route('/lab-collection')
 def lab_collection():
-    # Fetch all tests from DB
-    lab_tests = LabTest.query.all()
-    
-    # Serialize to list of dicts for clean JSON handoff
-    lab_tests_data = [{
-        'name': t.name,
-        'category': t.category,
-        'price': t.price,
-        'original_price': t.original_price, # Pass to template
-        'description': t.description,
-        'components': t.components,
-        'significance': t.significance,
-        'tat': t.tat,
-        'sample': t.sample_type
-    } for t in lab_tests]
+    try:
+        # Fetch all tests from DB
+        lab_tests = LabTest.query.all()
+        
+        # Serialize to list of dicts for clean JSON handoff
+        lab_tests_data = [{
+            'name': t.name,
+            'category': t.category,
+            'price': t.price,
+            'original_price': t.original_price, # Pass to template
+            'description': t.description,
+            'components': t.components,
+            'significance': t.significance,
+            'tat': t.tat,
+            'sample': t.sample_type
+        } for t in lab_tests]
 
-    return render_template('lab_collection.html', lab_tests_data=lab_tests_data)
+        return render_template('lab_collection.html', lab_tests_data=lab_tests_data)
+    except Exception as e:
+        app.logger.error(f"Lab Collection Page Error: {e}")
+        return f"<h1>System Error</h1><p>We are updating the catalog. Please check back in 5 minutes.</p><p><small>Debug: {e}</small></p>", 500
 
 @app.route('/about-us')
 def about_us():
@@ -817,9 +821,19 @@ def seed_production_data():
                     {"name": "CRP (C-Reactive Protein)", "category": "Heart", "price": 450, "description": "Inflammation marker.", "components": "CRP Quantitative", "significance": "Infection or inflammation."}
                 ]
                 
-                # Add all
+                # Add all with EXPLICIT mapping (Safe & Robust)
                 for t in packages + single_tests:
-                    test = LabTest(**t)
+                    test = LabTest(
+                        name=t['name'],
+                        category=t['category'],
+                        price=t['price'],
+                        original_price=t.get('original_price'),
+                        description=t['description'],
+                        components=t.get('components', ''),
+                        significance=t.get('significance', ''),
+                        tat=t.get('tat', '24 Hours'),
+                        sample_type=t.get('sample_type', 'Blood')
+                    )
                     db.session.add(test)
                 
                 db.session.commit()
