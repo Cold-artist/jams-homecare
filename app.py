@@ -285,8 +285,25 @@ def book_home_visit():
             form.prescription.data.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             prescription_path = filename
 
+        # Calculate Price based on Service/Test (Robust Lookup)
+        booking_price = 499 # Default Visit Charge
+        service_type = form.service_type.data
+        test_name = form.test_name.data
+
+        if service_type == 'sample_collection' and test_name:
+            # Case-insensitive match for robustness
+            cleaned_name = test_name.strip()
+            lab_test = LabTest.query.filter(func.lower(LabTest.name) == func.lower(cleaned_name)).first()
+            
+            if lab_test:
+                booking_price = lab_test.price
+                app.logger.info(f"Price Found: {booking_price} for {test_name}")
+            else:
+                app.logger.warning(f"Price Lookup Failed for: {test_name}")
+
         # Create booking
         booking = Booking(
+            user_id=current_user.id if current_user.is_authenticated else None,
             patient_name=form.patient_name.data,
             age=form.age.data,
             mobile=form.mobile.data,
@@ -294,11 +311,12 @@ def book_home_visit():
             address=form.address.data,
             area=form.area.data,
             landmark=form.landmark.data,
-            service_type=form.service_type.data,
-            test_name=form.test_name.data,
+            service_type=service_type,
+            test_name=test_name,
             prescription_path=prescription_path,
             preferred_date=form.preferred_date.data,
             preferred_time=form.preferred_time.data,
+            amount=booking_price, # CRITICAL: Save calculated price
             payment_method=request.form.get('payment_method', 'cod')
         )
         db.session.add(booking)
