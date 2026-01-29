@@ -665,11 +665,23 @@ def health_check():
             except Exception as e:
                 status['instance_folder_error'] = str(e)
 
-        # Check 2: Database Connection
+        # Check 2: Database Connection & Data Integrity
         try:
             user_count = User.query.count()
             test_count = LabTest.query.count()
             status['db'] = f"Connected. Users: {user_count}, Tests: {test_count}"
+            
+            # Check 3: Data Serialization (Mimic /lab-collection logic)
+            first_test = LabTest.query.first()
+            if first_test:
+                sample_data = {
+                    'name': first_test.name,
+                    'price': first_test.price,
+                    'tat': first_test.tat, # Check if this crashes on None
+                    'sample': first_test.sample_type
+                }
+                status['data_sample'] = sample_data
+                
         except Exception as e:
             status['db_error'] = str(e)
             
