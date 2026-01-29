@@ -401,14 +401,19 @@ def payment(booking_id):
         order = razorpay_client.order.create(data=data)
         app.logger.info(f"Created Razorpay Order: {order['id']} for Booking {booking.id}")
     except Exception as e:
-        app.logger.error(f"Razorpay Order Creation Failed (likely invalid keys): {e}")
-        # MOCK MODE for Demonstration if keys are invalid
+        app.logger.error(f"Razorpay Order Creation Failed: {e}")
+        
+        # MOCK MODE Fallback
         order = {
             "id": f"order_mock_{int(datetime.now().timestamp())}",
             "amount": amount,
             "currency": "INR"
         }
-        flash("Running in Payment Simulation Mode (Invalid API Keys)", "warning")
+        
+        if not RAZORPAY_KEY_ID:
+            flash("Setup Error: RAZORPAY_KEY_ID not found in Render settings.", "danger")
+        else:
+             flash(f"Payment Gateway Error: {str(e)}", "warning")
 
     return render_template('payment.html', 
                          booking=booking, 
