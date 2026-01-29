@@ -26,7 +26,7 @@
                     style="border-top: 1px dashed #e2e8f0; border-bottom: 1px dashed #e2e8f0; padding: 1.5rem 0; margin-bottom: 2rem;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                         <span style="color: #475569;">Consultation Fee</span>
-                        <span style="font-weight: 600; color: #334155;">₹499.00</span>
+                        <span style="font-weight: 600; color: #334155;">₹{{ booking.amount }}.00</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                         <span style="color: #475569;">Convenience Fee</span>
@@ -35,7 +35,7 @@
                     <div
                         style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f1f5f9;">
                         <span>Total Payable</span>
-                        <span>₹499.00</span>
+                        <span>₹{{ booking.amount }}.00</span>
                     </div>
                 </div>
 
@@ -150,16 +150,26 @@
 
     function triggerPayment(method_hint) {
 
-        // In Simulation Mode -> Simulate Success directly
+        // Check for Simulation Mode (Mock Order)
         if (orderId.startsWith("order_mock_")) {
-            simulateSuccess();
+            // Provide explicit feedback since keys aren't real
+            if (confirm("Simulation Mode Active: Proceed with Mock Payment Success?")) {
+                simulateSuccess();
+            }
             return;
         }
 
-        // In Real Mode -> Open Razorpay with specific method preference if supported
-        // Razorpay standard checkout handles method selection internally, 
-        // but clicking these buttons gives the user the *feeling* of choice.
+        // Check for Missing Keys (Logic Safety)
+        if (!options.key || options.key === 'None' || options.key === '') {
+            alert("Error: Payment Gateway Keys are missing. Please add RAZORPAY_KEY_ID to your environment variables.");
+            return;
+        }
+
+        // In Real Mode -> Open Razorpay
         var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response) {
+            alert("Payment Failed: " + response.error.description);
+        });
         rzp1.open();
     }
 

@@ -120,6 +120,7 @@ class Booking(db.Model):
     status = db.Column(db.String(20), default='pending')  # pending, confirmed, completed, cancelled
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     payment_method = db.Column(db.String(20), default='cod')
+    amount = db.Column(db.Integer, default=499) # Store agreed price
     staff_id = db.Column(db.Integer, nullable=True) 
 
 class LabTest(db.Model):
@@ -391,7 +392,9 @@ def payment(booking_id):
     booking = Booking.query.get_or_404(booking_id)
     
     # Create Razorpay Order
-    amount = 49900 # Example: Fixed Amount ₹499.00 (in paise)
+    # Ensure amount is an integer (default 499 if missing)
+    booking_amount = booking.amount if booking.amount else 499
+    amount = booking_amount * 100 # Convert to Paise
     
     try:
         data = { "amount": amount, "currency": "INR", "receipt": f"HHC{booking.id}" }
@@ -463,7 +466,7 @@ def payment_verify():
 Payment Successful! Your booking is confirmed.
 
 Transaction Ref: {data['razorpay_payment_id']}
-Amount: ₹499.00
+Amount: ₹{booking.amount}.00
 Booking ID: #HHC{booking.id:04d}
 Service: {service_display}
 Date: {booking.preferred_date.strftime('%d/%m/%Y')} {booking.preferred_time.strftime('%I:%M %p')}
