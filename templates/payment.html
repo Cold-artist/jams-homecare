@@ -4,9 +4,26 @@
 
 {% block content %}
 <div style="background-color: #f8fafc; min-height: 100vh; padding: 4rem 1rem;">
+    <style>
+        .payment-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .payment-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Reverse order for mobile so Payment Options appear first? No, Summary first is better. */
+        }
+    </style>
+
     <div class="container" style="max-width: 1000px; margin: 0 auto;">
 
-        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem; align-items: start;">
+        <div class="payment-grid">
 
             <!-- LEFT COLUMN: Booking Summary -->
             <div class="glass-card fade-up"

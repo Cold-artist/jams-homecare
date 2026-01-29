@@ -14,6 +14,16 @@
 <style>
     /* Mobile Optimization Overrides */
     @media (max-width: 768px) {
+
+        /* Hide overflow causing blobs */
+        body {
+            overflow-x: hidden;
+        }
+
+        div[style*="absolute"] {
+            display: none !important;
+        }
+
         h1 {
             font-size: 2.5rem !important;
         }

@@ -408,15 +408,11 @@
 
     function createHorizontalCard(test, container) {
         const card = document.createElement('div');
-        card.className = 'glass-card fade-up';
+        card.className = 'glass-card fade-up package-card-grid';
         card.style.position = 'relative';
         card.style.overflow = 'hidden';
         card.style.cursor = 'pointer';
-        card.style.display = 'grid';
-        card.style.gridTemplateColumns = '250px 1fr 180px';
-        card.style.gap = '2rem';
-        card.style.alignItems = 'center';
-        card.style.padding = '2rem';
+        // Grid layout is now handled by CSS class .package-card-grid
 
         const discount = test.original_price ? Math.round(((test.original_price - test.price) / test.original_price) * 100) : 0;
 
@@ -585,9 +581,39 @@
 
 <style>
     /* Responsive Grid Adjustments */
-    @media (max-width: 768px) {
+    .package-card-grid {
+        display: grid;
+        grid-template-columns: 250px 1fr 180px;
+        gap: 2rem;
+        align-items: center;
+        padding: 2rem;
+    }
+
+    @media (max-width: 900px) {
         .test-grid {
             grid-template-columns: 1fr !important;
+        }
+
+        /* Stack Package Cards on Mobile */
+        .package-card-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+            padding: 1.5rem !important;
+            text-align: left !important;
+        }
+
+        /* Target the internal divs of the JS-generated card */
+        .package-card-grid>div {
+            border: none !important;
+            padding: 0 !important;
+            text-align: left !important;
+        }
+
+        /* Add separation between sections in the card */
+        .package-card-grid>div:not(:last-child) {
+            margin-bottom: 1rem;
+            border-bottom: 1px dashed #e2e8f0 !important;
+            padding-bottom: 1rem !important;
         }
 
         div[style*="grid-template-columns: 1fr 200px auto"] {
