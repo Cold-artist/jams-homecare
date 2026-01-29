@@ -63,6 +63,8 @@ mail = Mail(app)
 
 # Database Configuration
 basedir = os.path.abspath(os.path.dirname(__file__))
+# Critical for Render: Ensure 'instance' folder exists before SQLite tries to write
+os.makedirs(os.path.join(basedir, 'instance'), exist_ok=True)
 
 # Production DB Support (PostgreSQL) with SQLite Fallback
 if os.environ.get('DATABASE_URL'):
