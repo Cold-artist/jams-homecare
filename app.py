@@ -641,7 +641,6 @@ def admin_login():
             session['admin_logged_in'] = True
             flash('Welcome back, Administrator.', 'success')
             return redirect(url_for('admin_dashboard'))
-        else:
             print("DEBUG: Admin credentials failed.")
             flash('Access Denied. Invalid credentials.', 'danger')
     else:
@@ -649,6 +648,44 @@ def admin_login():
              print(f"DEBUG: Form validation failed: {form.errors}")
             
     return render_template('admin_login.html', form=form)
+
+@app.route('/health_check')
+def health_check():
+    """Debug route to expose production errors."""
+    status = {"status": "ok", "db": "unknown", "env": "unknown"}
+    try:
+        # Check 1: Filesystem (Render instance folder)
+        import os
+        db_path = os.path.join(app.config.get('INSTANCE_PATH', os.getcwd()), 'instance')
+        status['instance_folder_exists'] = os.path.exists(db_path)
+        if not os.path.exists(db_path):
+            try:
+                os.makedirs(db_path, exist_ok=True)
+                status['instance_folder_created'] = True
+            except Exception as e:
+                status['instance_folder_error'] = str(e)
+
+        # Check 2: Database Connection
+        try:
+            user_count = User.query.count()
+            test_count = LabTest.query.count()
+            status['db'] = f"Connected. Users: {user_count}, Tests: {test_count}"
+        except Exception as e:
+            status['db_error'] = str(e)
+            
+            # Attempt Recovery
+            try:
+                with app.app_context():
+                    db.create_all()
+                    seed_production_data()
+                status['db_recovery_attempt'] = "Ran create_all() and seed()"
+            except Exception as rec_e:
+                status['db_recovery_error'] = str(rec_e)
+
+    except Exception as e:
+        status['fatal_error'] = str(e)
+    
+    return status
 
 @app.route('/logout')
 def logout():
