@@ -25,7 +25,13 @@
                 <div
                     style="border-top: 1px dashed #e2e8f0; border-bottom: 1px dashed #e2e8f0; padding: 1.5rem 0; margin-bottom: 2rem;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                        <span style="color: #475569;">Consultation Fee</span>
+                        <span style="color: #475569;">
+                            {% if booking.service_type == 'sample_collection' %}
+                            Lab Test / Package
+                            {% else %}
+                            Consultation Fee
+                            {% endif %}
+                        </span>
                         <span style="font-weight: 600; color: #334155;">₹{{ booking.amount }}.00</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
