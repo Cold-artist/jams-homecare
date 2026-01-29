@@ -891,6 +891,25 @@ def seed_production_data():
 #     app.logger.error(f"CRITICAL: Startup Seeding Failed: {e}")
 #     print(f"CRITICAL: Startup Seeding Failed: {e}") # Ensure it hits stdout
 
+# --- SELF-HEALING DATABASE ---
+# Critical for Render ephemeral storage: Ensure DB exists on first request
+db_initialized = False
+
+@app.before_request
+def initialize_database():
+    global db_initialized
+    if not db_initialized:
+        try:
+            # Check if tables exist by inspecting the engine
+            inspector = inspect(db.engine)
+            if not inspector.has_table("lab_test"):
+                app.logger.info("First Request: Database empty. Seeding data...")
+                db.create_all()
+                seed_production_data()
+                app.logger.info("Database Seeding Completed.")
+            db_initialized = True
+        except Exception as e:
+            app.logger.error(f"Database Initialization Failed: {e}")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
