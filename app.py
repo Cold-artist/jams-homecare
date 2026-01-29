@@ -865,11 +865,13 @@ def seed_production_data():
         app.logger.error(f"Seeding Failed: {e}")
 
 # Run Seeding on Module Import (Gunicorn loads this)
-try:
-    seed_production_data()
-except Exception as e:
-    app.logger.error(f"CRITICAL: Startup Seeding Failed: {e}")
-    print(f"CRITICAL: Startup Seeding Failed: {e}") # Ensure it hits stdout
+# DISABLED: Preventing Timeout on Render. 
+# Use /reset_db_force to seed manually.
+# try:
+#     seed_production_data()
+# except Exception as e:
+#     app.logger.error(f"CRITICAL: Startup Seeding Failed: {e}")
+#     print(f"CRITICAL: Startup Seeding Failed: {e}") # Ensure it hits stdout
 
 
 if __name__ == '__main__':
