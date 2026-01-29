@@ -171,8 +171,16 @@
             return;
         }
 
+        // Create a specific config for this click so we don't mutate global options
+        var currentOptions = JSON.parse(JSON.stringify(options));
+
+        // Map our method_hint to Razorpay prefill codes
+        if (method_hint === 'upi') currentOptions.prefill.method = 'upi';
+        if (method_hint === 'card') currentOptions.prefill.method = 'card';
+        if (method_hint === 'netbanking') currentOptions.prefill.method = 'netbanking';
+
         // In Real Mode -> Open Razorpay
-        var rzp1 = new Razorpay(options);
+        var rzp1 = new Razorpay(currentOptions);
         rzp1.on('payment.failed', function (response) {
             alert("Payment Failed: " + response.error.description);
         });
