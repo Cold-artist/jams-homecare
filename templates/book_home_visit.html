@@ -53,14 +53,16 @@
                                 <label
                                     style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: #334155;">Age
                                     <span style="color: #ef4444;">*</span></label>
-                                {{ form.age(class="form-control", placeholder="65", style="width: 100%; padding:
+                                {{ form.age(class="form-control", type="number", placeholder="65", style="width: 100%;
+                                padding:
                                 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;", required=True) }}
                             </div>
                             <div>
                                 <label
                                     style="display: block; margin-bottom: 0.4rem; font-weight: 600; font-size: 0.9rem; color: #334155;">Mobile
                                     <span style="color: #ef4444;">*</span></label>
-                                {{ form.mobile(class="form-control", placeholder="98765...", style="width: 100%;
+                                {{ form.mobile(class="form-control", type="tel", pattern="[0-9]*",
+                                placeholder="98765...", style="width: 100%;
                                 padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;", required=True) }}
                             </div>
                         </div>
@@ -338,6 +340,26 @@
         outline: none;
         border-color: var(--primary) !important;
         box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.1);
+    }
+
+    /* Mobile Sticky Button */
+    @media (max-width: 768px) {
+        #submitBtn {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100% !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            padding: 1.25rem !important;
+            z-index: 1000;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* Add spacing so button doesn't cover content */
+        form {
+            padding-bottom: 5rem;
+        }
     }
 </style>
 {% endblock %}

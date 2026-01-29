@@ -11,11 +11,55 @@
     style="position: absolute; top: 400px; left: -200px; width: 800px; height: 800px; background: radial-gradient(circle, rgba(14,116,144,0.05) 0%, rgba(255,255,255,0) 70%); border-radius: 50%; pointer-events: none; z-index: -1;">
 </div>
 
+<style>
+    /* Mobile Optimization Overrides */
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 2.5rem !important;
+        }
+
+        .hero-text {
+            text-align: center;
+        }
+
+        .hero-stats {
+            justify-content: center;
+        }
+
+        .container {
+            padding: 0 1.5rem !important;
+        }
+
+        section {
+            padding: 3rem 0 !important;
+        }
+
+        .features-grid {
+            padding-bottom: 6rem !important;
+        }
+
+        /* Fix Grid Overflow on Small Phones */
+        .grid-container {
+            grid-template-columns: 1fr !important;
+        }
+
+        /* Better Hero Buttons */
+        .hero-btns {
+            justify-content: center;
+        }
+
+        .hero-btns .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
 <section style="padding: 4rem 0;">
     <div class="container">
         <div
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 4rem; align-items: center;">
-            <div class="fade-up">
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 4rem; align-items: center;">
+            <div class="fade-up hero-text">
                 <div
                     style="display: inline-block; background: #ecfeff; color: var(--primary); padding: 0.5rem 1rem; border-radius: 99px; font-weight: 600; font-size: 0.875rem; margin-bottom: 1.5rem; border: 1px solid #cffafe;">
                     ✓ Clinic-Backed & Verified
@@ -28,7 +72,7 @@
                     Experience professional healthcare in Haldwani supervised by licensed pharmacists. Safe, reliable,
                     and strictly protocol-driven.
                 </p>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;" class="hero-btns">
                     <a href="{{ url_for('book_home_visit') }}" class="btn"
                         style="height: 3.5rem; padding: 0 2.5rem; font-size: 1rem;">Book Home Visit</a>
                     <a href="{{ url_for('services') }}" class="btn btn-secondary"
@@ -36,7 +80,7 @@
                         Services</a>
                 </div>
 
-                <div style="margin-top: 3rem; display: flex; align-items: center; gap: 2rem;">
+                <div style="margin-top: 3rem; display: flex; align-items: center; gap: 2rem;" class="hero-stats">
                     <div>
                         <div style="font-size: 1.5rem; font-weight: 700; color: var(--secondary);">2+</div>
                         <div style="font-size: 0.875rem; color: var(--text-muted);">Licensed<br>Pharmacists</div>
