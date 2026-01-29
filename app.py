@@ -60,8 +60,11 @@ razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'Jamshomecare@gmail.com')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'geyywvdqjrmlcvfz')
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+if app.config['MAIL_USERNAME']: app.config['MAIL_USERNAME'] = app.config['MAIL_USERNAME'].strip()
+
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+if app.config['MAIL_PASSWORD']: app.config['MAIL_PASSWORD'] = app.config['MAIL_PASSWORD'].strip()
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 
 mail = Mail(app)
