@@ -371,17 +371,26 @@
 <body>
     <!-- Premium Top Bar -->
     <div class="top-bar">
-        <span>For Home Visits & Lab Tests: <a href="tel:+919758928213">📞 +91 97589 28213</a></span>
-        <span style="opacity: 0.5; margin: 0 1rem;">|</span>
-        <span style="color: #67e8f9; font-weight: 700;">⚡ Free Home Sample Collection on orders > ₹499</span>
+        <span>For Home Visits: <a href="tel:+919758928213">📞 +91 97589 28213</a></span>
+        <span class="desktop-only" style="margin: 0 1rem;">|</span>
+        <span class="desktop-only" style="color: #67e8f9; font-weight: 700;">⚡ Free Sample Collection > ₹499</span>
     </div>
 
     <nav class="navbar">
         <a href="{{ url_for('home') }}" class="navbar-brand">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Jams Homecare Logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
             <span>Jams Homecare</span>
         </a>
-        <ul class="navbar-nav">
+
+        <!-- Mobile Toggle Button -->
+        <button class="mobile-toggle" onclick="toggleMobileMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                <path fill-rule="evenodd"
+                    d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+            </svg>
+        </button>
+
+        <ul class="navbar-nav" id="mobileNav">
             <li><a href="{{ url_for('home') }}"
                     class="nav-link{% if request.endpoint == 'home' %} active{% endif %}">Home</a></li>
             <li><a href="{{ url_for('services') }}"
@@ -390,12 +399,17 @@
                     class="nav-link{% if request.endpoint == 'lab_collection' %} active{% endif %}">Lab Tests</a></li>
             <li><a href="{{ url_for('contact') }}"
                     class="nav-link{% if request.endpoint == 'contact' %} active{% endif %}">Contact</a></li>
+            <!-- Mobile Only Button in Menu -->
+            <li class="mobile-only"><a href="{{ url_for('book_home_visit') }}" class="btn"
+                    style="width: 100%; justify-content: center;">Book Now</a></li>
         </ul>
-        <a href="{{ url_for('book_home_visit') }}" class="btn" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">Book
-            Now</a>
 
-        <!-- Power Corner: Profile Icon (Next to Navbar) -->
-        <div class="auth-corner" style="margin-left: 1.5rem; position: relative;">
+        <a href="{{ url_for('book_home_visit') }}" class="btn desktop-only"
+            style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">Book Now</a>
+
+        <!-- Power Corner: Profile Icon -->
+        <div class="auth-corner" style="margin-left: 1rem; position: relative;">
+            <!-- (Profile code remains same) -->
             {% if current_user.is_authenticated %}
             <div class="profile-circle" onclick="toggleProfileMenu()" title="My Profile">
                 {{ current_user.name[:2].upper() }}
@@ -407,7 +421,6 @@
                     <sm>{{ current_user.email }}</sm>
                 </div>
                 <a href="{{ url_for('dashboard') }}">📅 My Bookings</a>
-                <!-- <a href="#">⚙️ Settings</a> -->
                 <div class="divider"></div>
                 <a href="{{ url_for('logout') }}" style="color: #dc2626;">🚪 Logout</a>
             </div>
@@ -418,6 +431,86 @@
             {% endif %}
         </div>
     </nav>
+
+    <style>
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+        }
+
+        .desktop-only {
+            display: inline-flex;
+        }
+
+        .mobile-only {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .desktop-only {
+                display: none !important;
+            }
+
+            .mobile-only {
+                display: block;
+            }
+
+            .mobile-toggle {
+                display: block;
+                order: 3;
+                margin-left: auto;
+            }
+
+            .auth-corner {
+                order: 2;
+                margin-left: auto;
+                margin-right: 1rem;
+            }
+
+            .navbar {
+                flex-wrap: wrap;
+                /* Allow menu to break line */
+                padding: 0.75rem 1rem;
+            }
+
+            .navbar-brand span {
+                font-size: 1.1rem;
+            }
+
+            .navbar-brand img {
+                height: 35px;
+            }
+
+            /* Mobile Drawer */
+            .navbar-nav {
+                display: none;
+                /* Hidden by default */
+                width: 100%;
+                flex-direction: column;
+                gap: 1rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid #f1f5f9;
+                margin-top: 1rem;
+                order: 4;
+                /* Force to bottom */
+            }
+
+            .navbar-nav.active {
+                display: flex;
+                /* Show when active */
+                animation: slideDown 0.3s ease-out;
+            }
+        }
+    </style>
+
+    <script>
+        function toggleMobileMenu() {
+            document.getElementById('mobileNav').classList.toggle('active');
+        }
+        // ... (Existing Scripts)
 
     <style>
         /* Power Corner Styles */
