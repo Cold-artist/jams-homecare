@@ -112,18 +112,66 @@ def seed_db():
         print("Seeding Single Tests (Estimates based on Max Lab standards)...")
         # Standard Single Tests (Prices estimated for Haldwani market)
         single_tests = [
-            {"name": "CBC (Complete Blood Count)", "category": "Routine", "price": 350, "description": "Checks Hemoglobin, RBC, WBC, Platelets.", "components": "Hb, TLC, DLC, Platelet Count, RBC indices", "significance": "General health, infection, anemia."},
-            {"name": "Thyroid Profile (Total)", "category": "Thyroid", "price": 550, "description": "T3, T4, and TSH levels.", "components": "Total T3, Total T4, TSH", "significance": "Thyroid disorders."},
-            {"name": "Lipid Profile", "category": "Heart", "price": 650, "description": "Cholesterol and Triglycerides check.", "components": "Total Cholesterol, Triglycerides, HDL, LDL, VLDL", "significance": "Heart health risk assessment."},
-            {"name": "HbA1c", "category": "Diabetes", "price": 500, "description": "Average blood sugar over last 3 months.", "components": "Glycosylated Haemoglobin", "significance": "Diabetes management."},
-            {"name": "Liver Function Test (LFT)", "category": "Routine", "price": 850, "description": "Checks liver health.", "components": "Bilirubin, SGOT, SGPT, ALP, Protein", "significance": "Liver damage or disease."},
-            {"name": "Kidney Function Test (KFT)", "category": "Routine", "price": 850, "description": "Checks kidney performance.", "components": "Urea, Creatinine, Uric Acid, Electrolytes", "significance": "Kidney health."},
-            {"name": "Vitamin D (Total)", "category": "Vitamins", "price": 1000, "description": "Bone health vitamin.", "components": "25-OH Vitamin D", "significance": "Bone weakness, fatigue."},
-            {"name": "Vitamin B12", "category": "Vitamins", "price": 1000, "description": "Nerve health vitamin.", "components": "Cyanocobalamin", "significance": "Nerve issues, anemia."},
-            {"name": "Urine Routine & Microscopy", "category": "Routine", "price": 200, "description": "Basic urine exam.", "components": "Physical, Chemical, Microscopic", "significance": "UTI, kidney issues."},
-            {"name": "Dengue NS1 Antigen", "category": "Fever", "price": 600, "description": "Early dengue detection.", "components": "Dengue NS1", "significance": "Fever diagnosis."},
-            {"name": "Typhoid (Widal)", "category": "Fever", "price": 250, "description": "Typhoid fever check.", "components": "Salmonella Typhi Antibodies", "significance": "Fever diagnosis."},
-            {"name": "CRP (C-Reactive Protein)", "category": "Heart", "price": 450, "description": "Inflammation marker.", "components": "CRP Quantitative", "significance": "Infection or inflammation body-wide."}
+            # Blood Sugar Tests
+            {"name": "Fasting Blood Sugar", "category": "Diabetes", "price": 50, "description": "Measures blood glucose after fasting.", "components": "Glucose (Fasting)", "significance": "Diabetes screening."},
+            {"name": "Post Prandial Blood Sugar (2 Hours)", "category": "Diabetes", "price": 50, "description": "Measures blood glucose 2 hours after a meal.", "components": "Glucose (PP)", "significance": "Diabetes management."},
+            {"name": "Random Blood Sugar", "category": "Diabetes", "price": 50, "description": "Measures blood glucose at any time.", "components": "Glucose (Random)", "significance": "Quick diabetes check."},
+            {"name": "HbA1c", "category": "Diabetes", "price": 450, "description": "Average blood sugar over the last 3 months.", "components": "Glycosylated Haemoglobin", "significance": "Long-term diabetes control."},
+
+            # Liver Function Related
+            {"name": "Bilirubin (Total / Direct / Indirect)", "category": "Liver", "price": 170, "description": "Checks for jaundice and liver issues.", "components": "Total, Direct, Indirect Bilirubin", "significance": "Liver health."},
+            {"name": "SGOT (AST)", "category": "Liver", "price": 120, "description": "Liver enzyme test.", "components": "Aspartate Aminotransferase", "significance": "Liver damage."},
+            {"name": "SGPT (ALT)", "category": "Liver", "price": 120, "description": "Liver enzyme test.", "components": "Alanine Aminotransferase", "significance": "Liver damage."},
+            {"name": "Liver Function Test (LFT)", "category": "Liver", "price": 650, "description": "Complete liver health check.", "components": "Bilirubin, SGOT, SGPT, ALP, Protein, Albumin", "significance": "Comprehensive liver assessment."},
+            {"name": "Total Protein Test", "category": "Liver", "price": 170, "description": "Measures proteins in blood.", "components": "Total Protein, Albumin, Globulin", "significance": "Nutritional status, liver/kidney health."},
+
+            # Kidney Function Related
+            {"name": "Urea Test", "category": "Kidney", "price": 140, "description": "Measures waste product in blood.", "components": "Blood Urea Nitrogen", "significance": "Kidney function."},
+            {"name": "Creatinine Test", "category": "Kidney", "price": 110, "description": "Key marker for kidney health.", "components": "Serum Creatinine", "significance": "Kidney function."},
+            {"name": "Kidney Function Test (KFT)", "category": "Kidney", "price": 750, "description": "Complete kidney health check.", "components": "Urea, Creatinine, Uric Acid, Electrolytes", "significance": "Comprehensive kidney assessment."},
+            {"name": "PCR (Protein Creatinine Ratio)", "category": "Kidney", "price": 500, "description": "Urine test for protein.", "components": "Protein, Creatinine Ratio", "significance": "Kidney damage, diabetes complication."},
+
+            # Urine Tests
+            {"name": "Urine Routine & Microscopy (Urine R/M)", "category": "Urine", "price": 100, "description": "Basic urine examination.", "components": "Physical, Chemical, Microscopic analysis", "significance": "UTI, kidney disease, diabetes."},
+            {"name": "Urine Culture", "category": "Urine", "price": 450, "description": "Detects bacteria in urine.", "components": "Bacterial Culture & Sensitivity", "significance": "Urinary Tract Infection (UTI)."},
+
+            # Complete Blood & Basic Tests
+            {"name": "Complete Blood Count (CBC)", "category": "Routine", "price": 200, "description": "Overall health check.", "components": "Hb, TLC, DLC, Platelets, RBC indices", "significance": "Anemia, infection, leukemia."},
+            {"name": "Haemoglobin", "category": "Routine", "price": 70, "description": "Measures oxygen-carrying protein.", "components": "Hb", "significance": "Anemia."},
+            {"name": "Platelet Count", "category": "Routine", "price": 100, "description": "Essential for blood clotting.", "components": "Platelet Count", "significance": "Dengue, bleeding disorders."},
+            {"name": "ESR", "category": "Routine", "price": 70, "description": "Inflammation marker.", "components": "Erythrocyte Sedimentation Rate", "significance": "Infection, inflammation."},
+            {"name": "Blood Group", "category": "Routine", "price": 80, "description": "Identifies blood type.", "components": "ABO & Rh Typing", "significance": "Emergency, pregnancy."},
+
+            # Thyroid Tests
+            {"name": "Thyroid Function Test (TFT – T3, T4, TSH)", "category": "Thyroid", "price": 490, "description": "Complete thyroid check.", "components": "Total T3, Total T4, TSH", "significance": "Thyroid disorders."},
+            {"name": "TSH", "category": "Thyroid", "price": 220, "description": "Thyroid Stimulating Hormone.", "components": "TSH", "significance": "Thyroid screening."},
+
+            # Lipid & Cholesterol
+            {"name": "Lipid Profile", "category": "Heart", "price": 400, "description": "Cholesterol and fat levels.", "components": "Cholesterol, Triglycerides, HDL, LDL, VLDL", "significance": "Heart disease risk."},
+            {"name": "Total Cholesterol", "category": "Heart", "price": 110, "description": "Total measuring of cholesterol.", "components": "Total Cholesterol", "significance": "Heart health."},
+
+            # Electrolytes
+            {"name": "Sodium Test", "category": "Electrolytes", "price": 170, "description": "Electrolyte balance.", "components": "Serum Sodium", "significance": "Dehydration, nerve function."},
+            {"name": "Potassium Test", "category": "Electrolytes", "price": 170, "description": "Electrolyte balance.", "components": "Serum Potassium", "significance": "Heart and muscle function."},
+
+            # Infection & Inflammation
+            {"name": "CRP (C-Reactive Protein)", "category": "Infection", "price": 420, "description": "Inflammation marker.", "components": "CRP Quantitative", "significance": "Infection, inflammation."},
+            {"name": "Widal", "category": "Fever", "price": 130, "description": "Typhoid screening.", "components": "Salmonella Antibodies", "significance": "Typhoid fever."},
+            {"name": "Typhi Dot (IgM / IgG)", "category": "Fever", "price": 800, "description": "Rapid typhoid test.", "components": "IgM & IgG Antibodies", "significance": "Typhoid fever."},
+
+            # Male Health
+            {"name": "PSA Test", "category": "Male Health", "price": 800, "description": "Prostate screening.", "components": "Prostate Specific Antigen", "significance": "Prostate health."},
+
+            # Pancreas Tests
+            {"name": "Amylase Test", "category": "Pancreas", "price": 390, "description": "Pancreatic enzyme.", "components": "Serum Amylase", "significance": "Pancreatitis."},
+            {"name": "Lipase Test", "category": "Pancreas", "price": 350, "description": "Pancreatic enzyme.", "components": "Serum Lipase", "significance": "Pancreatitis."},
+
+            # Vitamins & Minerals
+            {"name": "Vitamin B12", "category": "Vitamins", "price": 1200, "description": "Nerve health vitamin.", "components": "Cyanocobalamin", "significance": "Nerve health, anemia."},
+            {"name": "Vitamin D", "category": "Vitamins", "price": 1200, "description": "Bone health vitamin.", "components": "25-OH Vitamin D", "significance": "Bone health, immunity."},
+            {"name": "Iron", "category": "Vitamins", "price": 500, "description": "Iron levels.", "components": "Serum Iron", "significance": "Anemia."},
+            {"name": "Calcium", "category": "Vitamins", "price": 130, "description": "Bone mineral.", "components": "Serum Calcium", "significance": "Bone health."},
+            {"name": "Uric Acid Test", "category": "Kidney", "price": 110, "description": "Joint health / Kidney.", "components": "Serum Uric Acid", "significance": "Gout, kidney stones."}
         ]
 
         all_tests = packages + single_tests
