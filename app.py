@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, flash, redirect, url_for, session, abort
+from flask import Flask, render_template, request, flash, redirect, url_for, session, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField, FileField, DateField, TimeField, IntegerField, SubmitField, PasswordField
@@ -142,6 +142,16 @@ class LabTest(db.Model):
     significance = db.Column(db.Text)
     tat = db.Column(db.String(50)) # Turnaround Time
     sample_type = db.Column(db.String(50))
+
+class Medicine(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    category = db.Column(db.String(50), default='OTC') # Prescription, OTC, Supplement
+    price = db.Column(db.Integer, nullable=False)
+    original_price = db.Column(db.Integer)
+    image_url = db.Column(db.String(500)) # External URL (e.g., Imgur/Cloudinary)
+    description = db.Column(db.String(300))
+    is_active = db.Column(db.Boolean, default=True)
 
 # Admin Contact Details
 ADMIN_EMAIL = 'jamshomecare@gmail.com'
@@ -586,34 +596,94 @@ def refund_policy():
     return render_template('policy_refund.html')
 
 @app.route('/contact', methods=['GET', 'POST'])
-def contact():
-    form = ContactForm()
-    if form.validate_on_submit():
-        inquiry = Inquiry(
-            name=form.name.data,
-            phone=form.phone.data,
-            service=form.service.data,
-            message=form.message.data
-        )
-        db.session.add(inquiry)
-        db.session.commit()
-        
-        # Send Email Notification
-        email_body = f"""New Contact Inquiry!
-
-Name: {inquiry.name}
-Phone: {inquiry.phone}
-Service Interest: {inquiry.service}
-Message: {inquiry.message}
-
-Check Admin Dashboard: http://127.0.0.1:8000/admin
-"""
-        send_email_notification(f"New Inquiry: {inquiry.name}", email_body, [ADMIN_EMAIL])
-        
-        flash('Message sent successfully! Our team will contact you shortly.', 'success')
         return redirect(url_for('contact'))
         
     return render_template('contact.html', form=form, admin_phone=ADMIN_PHONES[0])
+
+# --- PHARMACY & CART ROUTES ---
+@app.route('/pharmacy')
+def pharmacy():
+    medicines = Medicine.query.filter_by(is_active=True).all()
+    return render_template('pharmacy.html', medicines=medicines)
+
+@app.route('/cart/add', methods=['POST'])
+def add_to_cart():
+    try:
+        item_id = request.form.get('item_id')
+        item_type = request.form.get('item_type') # 'medicine' or 'test'
+        item_name = request.form.get('item_name')
+        item_price = int(request.form.get('item_price'))
+        
+        # Initialize Cart in Session if not exists
+        if 'cart' not in session:
+            session['cart'] = []
+            
+        cart = session['cart']
+        
+        # Check if item already in cart
+        for item in cart:
+            if item['id'] == item_id and item['type'] == item_type:
+                item['qty'] += 1
+                session.modified = True
+                return jsonify({'status': 'success', 'msg': 'Quantity updated', 'cart_count': len(cart)})
+                
+        # Add new item
+        cart.append({
+            'id': item_id,
+            'type': item_type,
+            'name': item_name,
+            'price': item_price,
+            'qty': 1
+        })
+        session.modified = True
+        
+        return jsonify({'status': 'success', 'msg': 'Added to cart', 'cart_count': len(cart)})
+    except Exception as e:
+        return jsonify({'status': 'error', 'msg': str(e)})
+
+@app.route('/cart')
+def view_cart():
+    cart = session.get('cart', [])
+    total = sum(item['price'] * item['qty'] for item in cart)
+    return render_template('cart.html', cart=cart, total=total)
+
+@app.route('/cart/remove/<int:index>')
+def remove_from_cart(index):
+    if 'cart' in session:
+        cart = session['cart']
+        if 0 <= index < len(cart):
+            cart.pop(index)
+            session.modified = True
+    return redirect(url_for('view_cart'))
+
+@app.route('/cart/checkout', methods=['GET', 'POST'])
+def checkout_cart():
+    cart = session.get('cart', [])
+    if not cart:
+        flash('Your cart is empty.', 'warning')
+        return redirect(url_for('pharmacy'))
+        
+    total = sum(item['price'] * item['qty'] for item in cart)
+    
+    # Create a summary string for the "Service Type" field
+    order_summary = ", ".join([f"{item['name']} x{item['qty']}" for item in cart])
+    
+    # Pre-fill specific booking logic for Cart Orders
+    # For now, we reuse the Book Home Visit form but contextually adapt it?
+    # Or determining if we should just render the Booking Form with pre-fills.
+    
+    # Let's direct them to a text-based checkout acting as "Home Visit" for now
+    # But passing the 'order_summary' as the service_type context
+    
+    form = BookingForm()
+    if form.validate_on_submit():
+        # ... logic to save booking with 'order_summary' ...
+        # logic duplicated from book_home_visit but customized
+        pass # Placeholder for now, typically re-use book_home_visit endpoint
+        
+    # Redirect to Book Home Visit with query params
+    return redirect(url_for('book_home_visit', service='Pharmacy Order', details=order_summary, price=total))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -771,6 +841,46 @@ def admin_dashboard():
     bookings = Booking.query.order_by(Booking.created_at.desc()).all()
     inquiries = Inquiry.query.order_by(Inquiry.created_at.desc()).all()
     return render_template('admin.html', bookings=bookings, inquiries=inquiries)
+
+@app.route('/admin/medicines')
+def admin_medicines():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    medicines = Medicine.query.all()
+    return render_template('admin_medicines.html', medicines=medicines)
+
+@app.route('/admin/medicines/add', methods=['POST'])
+def admin_add_medicine():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    try:
+        new_med = Medicine(
+            name=request.form['name'],
+            price=int(request.form['price']),
+            original_price=int(request.form['original_price']) if request.form['original_price'] else None,
+            category=request.form['category'],
+            image_url=request.form['image_url'],
+            description=request.form['description']
+        )
+        db.session.add(new_med)
+        db.session.commit()
+        flash('Medicine added successfully!', 'success')
+    except Exception as e:
+        flash(f'Error adding medicine: {e}', 'danger')
+        
+    return redirect(url_for('admin_medicines'))
+
+@app.route('/admin/medicines/delete/<int:id>', methods=['POST'])
+def admin_delete_medicine(id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+        
+    med = Medicine.query.get_or_404(id)
+    db.session.delete(med)
+    db.session.commit()
+    flash('Medicine deleted.', 'success')
+    return redirect(url_for('admin_medicines'))
 
 # --- DEPLOYMENT AUTO-SEEDING (CRITICAL FOR RENDER) ---
 def seed_production_data():

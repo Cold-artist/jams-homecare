@@ -12,6 +12,9 @@
                 <h1 style="font-size: 2.5rem; color: var(--text-main);">Admin Dashboard</h1>
             </div>
             <div style="display: flex; gap: 1rem;">
+                <a href="{{ url_for('admin_medicines') }}" class="btn"
+                    style="padding: 0.5rem 1rem; font-size: 0.9rem; background: var(--secondary); color: white;">Manage
+                    Medicines</a>
                 <button onclick="location.reload()" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Refresh
                     Data</button>
                 <a href="{{ url_for('logout') }}" class="btn"

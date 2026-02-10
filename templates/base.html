@@ -397,6 +397,8 @@
                     class="nav-link{% if request.endpoint == 'services' %} active{% endif %}">Services</a></li>
             <li><a href="{{ url_for('lab_collection') }}"
                     class="nav-link{% if request.endpoint == 'lab_collection' %} active{% endif %}">Lab Tests</a></li>
+            <li><a href="{{ url_for('pharmacy') }}"
+                    class="nav-link{% if request.endpoint == 'pharmacy' %} active{% endif %}">Medicines</a></li>
             <li><a href="{{ url_for('contact') }}"
                     class="nav-link{% if request.endpoint == 'contact' %} active{% endif %}">Contact</a></li>
             <!-- Mobile Only Button in Menu -->
