@@ -596,6 +596,31 @@ def refund_policy():
     return render_template('policy_refund.html')
 
 @app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    form = ContactForm()
+    if form.validate_on_submit():
+        inquiry = Inquiry(
+            name=form.name.data,
+            phone=form.phone.data,
+            service=form.service.data,
+            message=form.message.data
+        )
+        db.session.add(inquiry)
+        db.session.commit()
+        
+        # Send Email Notification
+        email_body = f"""New Contact Inquiry!
+
+Name: {inquiry.name}
+Phone: {inquiry.phone}
+Service Interest: {inquiry.service}
+Message: {inquiry.message}
+
+Check Admin Dashboard: http://127.0.0.1:8000/admin
+"""
+        send_email_notification(f"New Inquiry: {inquiry.name}", email_body, [ADMIN_EMAIL])
+        
+        flash('Message sent successfully! Our team will contact you shortly.', 'success')
         return redirect(url_for('contact'))
         
     return render_template('contact.html', form=form, admin_phone=ADMIN_PHONES[0])
