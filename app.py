@@ -1197,9 +1197,18 @@ def seed_production_data():
     except Exception as e:
         app.logger.error(f"Seeding Failed: {e}")
 
+@app.route('/init-data')
+def init_data():
+    """Manually trigger seeding without dropping tables."""
+    try:
+        seed_production_data()
+        return "<h1>Data Initialized!</h1><p>Medicines and Lab Tests checked/added.</p><a href='/pharmacy'>Go to Pharmacy</a>"
+    except Exception as e:
+        return f"Error: {e}"
+
 # Run Seeding on Module Import (Gunicorn loads this)
 # DISABLED: Preventing Timeout on Render. 
-# Use /reset_db_force to seed manually.
+# Use /init-data to seed manually.
 # try:
 #     seed_production_data()
 # except Exception as e:
