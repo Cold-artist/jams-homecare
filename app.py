@@ -1077,108 +1077,133 @@ def seed_production_data():
                 app.logger.info("Seeding Medicines...")
                 
                 # Category Images
+                # High-Quality Official Brand Logos (Real Images via Clearbit)
                 images = {
+                    "Glucon-D": "https://logo.clearbit.com/glucond.com", 
+                    "Dabur": "https://logo.clearbit.com/dabur.com",
+                    "Himalaya": "https://logo.clearbit.com/himalayawellness.in",
+                    "Dettol": "https://logo.clearbit.com/reckitt.com", 
+                    "Zandu": "https://logo.clearbit.com/zanducare.com",
+                    "Little": "https://logo.clearbit.com/piramal.com", 
+                    "Nestle": "https://logo.clearbit.com/nestle.in", 
+                }
+
+                # Fallback Category Icons
+                cat_images = {
                     "Energy": "https://i.imgur.com/8J5s2e6.png",
-                    "Honey": "https://i.imgur.com/L7X9XyB.png", 
+                    "Honey": "https://logo.clearbit.com/dabur.com",
                     "Digestion": "https://i.imgur.com/3q5Xy9C.png",
-                    "Baby": "https://i.imgur.com/9X5Xy9C.png",
-                    "Immunity": "https://i.imgur.com/2X5Xy9C.png",
+                    "Baby": "https://logo.clearbit.com/piramal.com",
+                    "Immunity": "https://logo.clearbit.com/zanducare.com",
                     "Syrup": "https://i.imgur.com/4q5Xy9C.png",
-                    "Ayurveda": "https://i.imgur.com/1X5Xy9C.png",
-                    "Nutrition": "https://i.imgur.com/5X5Xy9C.png",
-                    "Liver": "https://i.imgur.com/6X5Xy9C.png",
-                    "Tablet": "https://i.imgur.com/7X5Xy9C.png",
+                    "Ayurveda": "https://logo.clearbit.com/dabur.com",
+                    "Nutrition": "https://logo.clearbit.com/nestle.in",
+                    "Liver": "https://logo.clearbit.com/himalayawellness.in",
+                    "Tablet": "https://logo.clearbit.com/himalayawellness.in",
                     "Ointment": "https://i.imgur.com/0X5Xy9C.png",
-                    "Hygiene": "https://i.imgur.com/aX5Xy9C.png",
+                    "Hygiene": "https://logo.clearbit.com/reckitt.com",
                     "Supplement": "https://i.imgur.com/bX5Xy9C.png"
                 }
 
                 medicines_data = [
                     # Energy
-                    {"name": "Glucon-D Regular 125g", "price": 40, "cat": "Energy", "type": "OTC"},
-                    {"name": "Glucon-D Regular 250g", "price": 79, "cat": "Energy", "type": "OTC"},
-                    {"name": "Glucon-D Regular 500g", "price": 140, "cat": "Energy", "type": "OTC"},
-                    {"name": "Glucon-D Regular 1kg", "price": 255, "cat": "Energy", "type": "OTC"},
-                    {"name": "Glucon-D Orange 125g", "price": 56, "cat": "Energy", "type": "OTC"},
-                    {"name": "Glucon-D Orange 200g", "price": 89, "cat": "Energy", "type": "OTC"},
-                    {"name": "Glucon-D Orange 450g", "price": 219, "cat": "Energy", "type": "OTC"},
-                    {"name": "Glucon-D Orange 1kg", "price": 415, "cat": "Energy", "type": "OTC"},
-                    {"name": "Glucon-D Nimbu Pani 125g", "price": 56, "cat": "Energy", "type": "OTC"},
-                    {"name": "Glucon-D Nimbu Pani 450g", "price": 219, "cat": "Energy", "type": "OTC"},
-                    {"name": "Glucon-D Nimbu Pani 1kg", "price": 415, "cat": "Energy", "type": "OTC"},
+                    {"name": "Glucon-D Regular 125g", "price": 40, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
+                    {"name": "Glucon-D Regular 250g", "price": 79, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
+                    {"name": "Glucon-D Regular 500g", "price": 140, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
+                    {"name": "Glucon-D Regular 1kg", "price": 255, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
+                    {"name": "Glucon-D Orange 125g", "price": 56, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
+                    {"name": "Glucon-D Orange 200g", "price": 89, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
+                    {"name": "Glucon-D Orange 450g", "price": 219, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
+                    {"name": "Glucon-D Orange 1kg", "price": 415, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
+                    {"name": "Glucon-D Nimbu Pani 125g", "price": 56, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
+                    {"name": "Glucon-D Nimbu Pani 450g", "price": 219, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
+                    {"name": "Glucon-D Nimbu Pani 1kg", "price": 415, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
                     # Honey
-                    {"name": "Dabur Honey 100g", "price": 70, "cat": "Honey", "type": "Healthy Food"},
-                    {"name": "Dabur Honey 200g", "price": 125, "cat": "Honey", "type": "Healthy Food"},
-                    {"name": "Dabur Honey 600g", "price": 250, "cat": "Honey", "type": "Healthy Food"},
+                    {"name": "Dabur Honey 100g", "price": 70, "cat": "Honey", "type": "Healthy Food", "brand": "Dabur"},
+                    {"name": "Dabur Honey 200g", "price": 125, "cat": "Honey", "type": "Healthy Food", "brand": "Dabur"},
+                    {"name": "Dabur Honey 600g", "price": 250, "cat": "Honey", "type": "Healthy Food", "brand": "Dabur"},
                     # Digestion
-                    {"name": "Sat Isabgol 50g", "price": 90, "cat": "Digestion", "type": "OTC"},
-                    {"name": "Sat Isabgol 100g", "price": 175, "cat": "Digestion", "type": "OTC"},
-                    {"name": "Sat Isabgol 200g", "price": 345, "cat": "Digestion", "type": "OTC"},
+                    {"name": "Sat Isabgol 50g", "price": 90, "cat": "Digestion", "type": "OTC", "brand": "Dabur"},
+                    {"name": "Sat Isabgol 100g", "price": 175, "cat": "Digestion", "type": "OTC", "brand": "Dabur"},
+                    {"name": "Sat Isabgol 200g", "price": 345, "cat": "Digestion", "type": "OTC", "brand": "Dabur"},
                     # Baby
-                    {"name": "Little Baby Wipes (30 Wipes)", "price": 49, "cat": "Baby", "type": "Personal Care"},
-                    {"name": "Little Baby Wipes (72 Wipes)", "price": 99, "cat": "Baby", "type": "Personal Care"},
-                    {"name": "Lactogen Pro 1", "price": 450, "cat": "Nutrition", "type": "Baby Food"},
-                    {"name": "Lactogen Pro 2", "price": 450, "cat": "Nutrition", "type": "Baby Food"},
-                    {"name": "Lactogen Pro 3", "price": 435, "cat": "Nutrition", "type": "Baby Food"},
-                    {"name": "Lactogen Pro 4", "price": 435, "cat": "Nutrition", "type": "Baby Food"},
+                    {"name": "Little Baby Wipes (30 Wipes)", "price": 49, "cat": "Baby", "type": "Personal Care", "brand": "Little"},
+                    {"name": "Little Baby Wipes (72 Wipes)", "price": 99, "cat": "Baby", "type": "Personal Care", "brand": "Little"},
+                    {"name": "Lactogen Pro 1", "price": 450, "cat": "Nutrition", "type": "Baby Food", "brand": "Nestle"},
+                    {"name": "Lactogen Pro 2", "price": 450, "cat": "Nutrition", "type": "Baby Food", "brand": "Nestle"},
+                    {"name": "Lactogen Pro 3", "price": 435, "cat": "Nutrition", "type": "Baby Food", "brand": "Nestle"},
+                    {"name": "Lactogen Pro 4", "price": 435, "cat": "Nutrition", "type": "Baby Food", "brand": "Nestle"},
                     # Immunity
-                    {"name": "Zandu Chyawanprash 450g", "price": 215, "cat": "Immunity", "type": "Ayurveda"},
-                    {"name": "Zandu Chyawanprash 900g", "price": 350, "cat": "Immunity", "type": "Ayurveda"},
-                    {"name": "Dabur Chyawanprash 250g", "price": 99, "cat": "Immunity", "type": "Ayurveda"},
-                    {"name": "Dabur Chyawanprash 500g", "price": 240, "cat": "Immunity", "type": "Ayurveda"},
-                    {"name": "Dabur Chyawanprash 1kg", "price": 430, "cat": "Immunity", "type": "Ayurveda"},
-                    {"name": "Dabur Chyawanprash Sugar Free 500g", "price": 255, "cat": "Immunity", "type": "Ayurveda"},
-                    {"name": "Dabur Chyawanprash Sugar Free 900g", "price": 440, "cat": "Immunity", "type": "Ayurveda"},
+                    {"name": "Zandu Chyawanprash 450g", "price": 215, "cat": "Immunity", "type": "Ayurveda", "brand": "Zandu"},
+                    {"name": "Zandu Chyawanprash 900g", "price": 350, "cat": "Immunity", "type": "Ayurveda", "brand": "Zandu"},
+                    {"name": "Dabur Chyawanprash 250g", "price": 99, "cat": "Immunity", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Chyawanprash 500g", "price": 240, "cat": "Immunity", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Chyawanprash 1kg", "price": 430, "cat": "Immunity", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Chyawanprash Sugar Free 500g", "price": 255, "cat": "Immunity", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Chyawanprash Sugar Free 900g", "price": 440, "cat": "Immunity", "type": "Ayurveda", "brand": "Dabur"},
                     # Syrups
-                    {"name": "Dabur Dashmularishta 450ml", "price": 215, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Dabur Dashmularishta 680ml", "price": 268, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Dabur Ashokarishta 450ml", "price": 155, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Dabur Ashokarishta 680ml", "price": 200, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Dabur Punarnavarishta 450ml", "price": 210, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Dabur Ashwagandharishta 680ml", "price": 300, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Dabur Pathyadiarishta 450ml", "price": 192, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Dabur Lohasava 450ml", "price": 195, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Dabur Lohasava 680ml", "price": 245, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Baidyanath Dashmularishta 680ml", "price": 275, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Baidyanath Abhayarishta 680ml", "price": 255, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Baidyanath Ashokarishta 680ml", "price": 200, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Baidyanath Lohasav 450ml", "price": 198, "cat": "Ayurveda", "type": "Ayurveda"},
-                    {"name": "Baidyanath Arjunarishta 680ml", "price": 281, "cat": "Ayurveda", "type": "Ayurveda"},
+                    {"name": "Dabur Dashmularishta 450ml", "price": 215, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Dashmularishta 680ml", "price": 268, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Ashokarishta 450ml", "price": 155, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Ashokarishta 680ml", "price": 200, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Punarnavarishta 450ml", "price": 210, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Ashwagandharishta 680ml", "price": 300, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Pathyadiarishta 450ml", "price": 192, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Lohasava 450ml", "price": 195, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Dabur Lohasava 680ml", "price": 245, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Dabur"},
+                    {"name": "Baidyanath Dashmularishta 680ml", "price": 275, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Baidyanath"},
+                    {"name": "Baidyanath Abhayarishta 680ml", "price": 255, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Baidyanath"},
+                    {"name": "Baidyanath Ashokarishta 680ml", "price": 200, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Baidyanath"},
+                    {"name": "Baidyanath Lohasav 450ml", "price": 198, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Baidyanath"},
+                    {"name": "Baidyanath Arjunarishta 680ml", "price": 281, "cat": "Ayurveda", "type": "Ayurveda", "brand": "Baidyanath"},
                     # Liver & Condition Specific
-                    {"name": "Liv 52 Tablet", "price": 215, "cat": "Liver", "type": "Prescription"},
-                    {"name": "Liv 52 DS Tablet", "price": 300, "cat": "Liver", "type": "Prescription"},
-                    {"name": "Liv 52 Syrup 100ml", "price": 140, "cat": "Liver", "type": "Prescription"},
-                    {"name": "Liv 52 Syrup 200ml", "price": 250, "cat": "Liver", "type": "Prescription"},
-                    {"name": "Liv 52 DS Syrup 100ml", "price": 220, "cat": "Liver", "type": "Prescription"},
-                    {"name": "Liv 52 DS Syrup 200ml", "price": 351, "cat": "Liver", "type": "Prescription"},
-                    {"name": "Septiline Tablet", "price": 275, "cat": "Tablet", "type": "Prescription"},
-                    {"name": "Septiline Syrup 200ml", "price": 200, "cat": "Syrup", "type": "Prescription"},
-                    {"name": "Pilex Tablet", "price": 250, "cat": "Tablet", "type": "Prescription"},
-                    {"name": "Pilex Forte Ointment 30g", "price": 160, "cat": "Ointment", "type": "Prescription"},
-                    {"name": "Cystone Tablet", "price": 260, "cat": "Tablet", "type": "Prescription"},
-                    {"name": "Cystone Syrup 200ml", "price": 225, "cat": "Syrup", "type": "Prescription"},
-                    {"name": "Evecare Syrup 200ml", "price": 190, "cat": "Syrup", "type": "Prescription"},
-                    {"name": "Hasx Tablet", "price": 200, "cat": "Tablet", "type": "Prescription"},
-                    {"name": "Neeri Syrup 100ml", "price": 164, "cat": "Syrup", "type": "Prescription"},
-                    {"name": "Neeri Syrup 200ml", "price": 313, "cat": "Syrup", "type": "Prescription"},
+                    {"name": "Liv 52 Tablet", "price": 215, "cat": "Liver", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Liv 52 DS Tablet", "price": 300, "cat": "Liver", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Liv 52 Syrup 100ml", "price": 140, "cat": "Liver", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Liv 52 Syrup 200ml", "price": 250, "cat": "Liver", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Liv 52 DS Syrup 100ml", "price": 220, "cat": "Liver", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Liv 52 DS Syrup 200ml", "price": 351, "cat": "Liver", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Septiline Tablet", "price": 275, "cat": "Tablet", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Septiline Syrup 200ml", "price": 200, "cat": "Syrup", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Pilex Tablet", "price": 250, "cat": "Tablet", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Pilex Forte Ointment 30g", "price": 160, "cat": "Ointment", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Cystone Tablet", "price": 260, "cat": "Tablet", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Cystone Syrup 200ml", "price": 225, "cat": "Syrup", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Evecare Syrup 200ml", "price": 190, "cat": "Syrup", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Hasx Tablet", "price": 200, "cat": "Tablet", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Neeri Syrup 100ml", "price": 164, "cat": "Syrup", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Neeri Syrup 200ml", "price": 313, "cat": "Syrup", "type": "Prescription", "brand": "Himalaya"},
                     # Ointments & Hygiene
-                    {"name": "Ano Rate Ointment 20g", "price": 145, "cat": "Ointment", "type": "OTC"},
-                    {"name": "Abzorb Powder", "price": 175, "cat": "Hygiene", "type": "Personal Care"},
-                    {"name": "Candid Powder 60g", "price": 104, "cat": "Hygiene", "type": "Personal Care"},
-                    {"name": "Candid Powder 120g", "price": 174, "cat": "Hygiene", "type": "Personal Care"},
-                    {"name": "Clocip Powder 75g", "price": 93, "cat": "Hygiene", "type": "Personal Care"},
-                    {"name": "Clocip Powder 120g", "price": 168, "cat": "Hygiene", "type": "Personal Care"},
-                    {"name": "Dettol Liquid 60ml", "price": 41, "cat": "Hygiene", "type": "Personal Care"},
-                    {"name": "Dettol Liquid 125ml", "price": 83, "cat": "Hygiene", "type": "Personal Care"},
-                    {"name": "Dettol Liquid 250ml", "price": 159, "cat": "Hygiene", "type": "Personal Care"},
-                    {"name": "Dettol Liquid 550ml", "price": 267, "cat": "Hygiene", "type": "Personal Care"},
-                    {"name": "Dettol Liquid 1L", "price": 485, "cat": "Hygiene", "type": "Personal Care"},
-                    {"name": "Maxirich (10 Tablets)", "price": 129, "cat": "Supplement", "type": "Supplements"}
+                    {"name": "Ano Rate Ointment 20g", "price": 145, "cat": "Ointment", "type": "OTC", "brand": "Generic"},
+                    {"name": "Abzorb Powder", "price": 175, "cat": "Hygiene", "type": "Personal Care", "brand": "Generic"},
+                    {"name": "Candid Powder 60g", "price": 104, "cat": "Hygiene", "type": "Personal Care", "brand": "Glenmark"},
+                    {"name": "Candid Powder 120g", "price": 174, "cat": "Hygiene", "type": "Personal Care", "brand": "Glenmark"},
+                    {"name": "Clocip Powder 75g", "price": 93, "cat": "Hygiene", "type": "Personal Care", "brand": "Cipla"},
+                    {"name": "Clocip Powder 120g", "price": 168, "cat": "Hygiene", "type": "Personal Care", "brand": "Cipla"},
+                    {"name": "Dettol Liquid 60ml", "price": 41, "cat": "Hygiene", "type": "Personal Care", "brand": "Dettol"},
+                    {"name": "Dettol Liquid 125ml", "price": 83, "cat": "Hygiene", "type": "Personal Care", "brand": "Dettol"},
+                    {"name": "Dettol Liquid 250ml", "price": 159, "cat": "Hygiene", "type": "Personal Care", "brand": "Dettol"},
+                    {"name": "Dettol Liquid 550ml", "price": 267, "cat": "Hygiene", "type": "Personal Care", "brand": "Dettol"},
+                    {"name": "Dettol Liquid 1L", "price": 485, "cat": "Hygiene", "type": "Personal Care", "brand": "Dettol"},
+                    {"name": "Maxirich (10 Tablets)", "price": 129, "cat": "Supplement", "type": "Supplements", "brand": "Cipla"}
                 ]
 
                 # Bulk Add
                 for m in medicines_data:
-                    img = images.get(m['cat'], "https://i.imgur.com/7X5Xy9C.png")
+                    # 1. Try Specific Brand Logo
+                    img = images.get(m.get('brand'), None)
+                    
+                    # 2. Key Mapping Overrides
+                    if not img:
+                        if "Baidyanath" in m['name']: img = "https://logo.clearbit.com/baidyanath.co.in"
+                        elif "Cipla" in m.get('brand', ''): img = "https://logo.clearbit.com/cipla.com"
+                        elif "Glenmark" in m.get('brand', ''): img = "https://logo.clearbit.com/glenmarkpharma.com"
+                        elif "Glucon-D" in m['name']: img = "https://logo.clearbit.com/glucond.com"
+                    
+                    # 3. Fallback Category Icon
+                    if not img:
+                        img = cat_images.get(m['cat'], "https://i.imgur.com/7X5Xy9C.png")
+                    
                     med = Medicine(
                         name=m['name'],
                         category=m['type'], 
