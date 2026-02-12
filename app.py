@@ -1170,11 +1170,11 @@ def seed_production_data():
                     {"name": "Cystone Tablet", "price": 260, "cat": "Tablet", "type": "Prescription", "brand": "Himalaya"},
                     {"name": "Cystone Syrup 200ml", "price": 225, "cat": "Syrup", "type": "Prescription", "brand": "Himalaya"},
                     {"name": "Evecare Syrup 200ml", "price": 190, "cat": "Syrup", "type": "Prescription", "brand": "Himalaya"},
-                    {"name": "Hasx Tablet", "price": 200, "cat": "Tablet", "type": "Prescription", "brand": "Himalaya"},
+                    {"name": "Gasex Tablet", "price": 200, "cat": "Tablet", "type": "Prescription", "brand": "Himalaya"},
                     {"name": "Neeri Syrup 100ml", "price": 164, "cat": "Syrup", "type": "Prescription", "brand": "Himalaya"},
                     {"name": "Neeri Syrup 200ml", "price": 313, "cat": "Syrup", "type": "Prescription", "brand": "Himalaya"},
                     # Ointments & Hygiene
-                    {"name": "Ano Rate Ointment 20g", "price": 145, "cat": "Ointment", "type": "OTC", "brand": "Generic"},
+                    {"name": "Anovate Ointment 20g", "price": 145, "cat": "Ointment", "type": "OTC", "brand": "Generic"},
                     {"name": "Abzorb Powder", "price": 175, "cat": "Hygiene", "type": "Personal Care", "brand": "Generic"},
                     {"name": "Candid Powder 60g", "price": 104, "cat": "Hygiene", "type": "Personal Care", "brand": "Glenmark"},
                     {"name": "Candid Powder 120g", "price": 174, "cat": "Hygiene", "type": "Personal Care", "brand": "Glenmark"},
