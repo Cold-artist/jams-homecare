@@ -83,15 +83,7 @@
     </div>
 </section>
 
-<!-- Floating Cart Button (Hidden by default, shown via JS if items exist) -->
-<a href="{{ url_for('view_cart') }}" id="floating-cart"
-    style="display: none; position: fixed; bottom: 2rem; right: 2rem; background: var(--secondary); color: white; padding: 1rem; border-radius: 50%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1000; text-decoration: none;">
-    <div style="position: relative;">
-        <span style="font-size: 1.5rem;">🛒</span>
-        <span id="cart-count"
-            style="position: absolute; top: -10px; right: -10px; background: #ef4444; color: white; font-size: 0.75rem; font-weight: 700; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white;">0</span>
-    </div>
-</a>
+
 
 <style>
     .medicine-grid {
@@ -191,13 +183,18 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        // Update Cart Badge
-                        const cartBtn = document.getElementById('floating-cart');
-                        const cartCount = document.getElementById('cart-count');
+                        // Update Cart Badge (Now in Navbar)
+                        const cartCount = document.getElementById('nav-cart-count');
 
-                        cartCount.innerText = data.cart_count;
-                        cartBtn.style.display = 'block'; // Show if hidden
-                        cartBtn.classList.add('pulse'); // Animation hint
+                        if (cartCount) {
+                            cartCount.innerText = data.cart_count;
+                            cartCount.style.display = 'flex'; // Show badge
+                            cartCount.classList.add('pulse'); // Animation hint
+
+                            setTimeout(() => {
+                                cartCount.classList.remove('pulse');
+                            }, 2000);
+                        }
 
                         // Reset Button
                         this.innerText = "Added ✓";
@@ -206,19 +203,11 @@
                             this.innerText = originalText;
                             this.style.background = "var(--primary)";
                             this.disabled = false;
-                            cartBtn.classList.remove('pulse');
                         }, 2000);
                     }
                 });
         });
     });
-
-    // Initial Cart Check (Optional: You could pass cart count from backend to init this)
-    /*
-       Ideally, we check session on load. For now, since it relies on AJAX, 
-       the button appears only after interaction OR if we passed 'cart_count' in template.
-       We'll improve this in next iteration.
-    */
 </script>
 
 <style>

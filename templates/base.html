@@ -401,6 +401,21 @@
                     class="nav-link{% if request.endpoint == 'pharmacy' %} active{% endif %}">Medicines</a></li>
             <li><a href="{{ url_for('contact') }}"
                     class="nav-link{% if request.endpoint == 'contact' %} active{% endif %}">Contact</a></li>
+
+            <!-- Cart Icon (Desktop & Mobile) -->
+            <li>
+                <a href="{{ url_for('view_cart') }}" class="nav-link"
+                    style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span>Cart</span>
+                    <div style="position: relative;">
+                        <span style="font-size: 1.2rem;">🛒</span>
+                        <span id="nav-cart-count"
+                            style="position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; font-size: 0.7rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; display: none;">
+                            0
+                        </span>
+                    </div>
+                </a>
+            </li>
             <!-- Mobile Only Button in Menu -->
             <li class="mobile-only"><a href="{{ url_for('book_home_visit') }}" class="btn"
                     style="width: 100%; justify-content: center;">Book Now</a></li>
