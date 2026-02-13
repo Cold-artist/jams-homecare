@@ -402,20 +402,7 @@
             <li><a href="{{ url_for('contact') }}"
                     class="nav-link{% if request.endpoint == 'contact' %} active{% endif %}">Contact</a></li>
 
-            <!-- Cart Icon (Desktop Only - Inside Menu) -->
-            <li class="desktop-only">
-                <a href="{{ url_for('view_cart') }}" class="nav-link"
-                    style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span>Cart</span>
-                    <div style="position: relative;">
-                        <span style="font-size: 1.2rem;">🛒</span>
-                        <span class="cart-count-badge"
-                            style="position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; font-size: 0.7rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; display: none;">
-                            0
-                        </span>
-                    </div>
-                </a>
-            </li>
+
             <!-- Mobile Only Button in Menu -->
             <li class="mobile-only"><a href="{{ url_for('book_home_visit') }}" class="btn"
                     style="width: 100%; justify-content: center;">Book Now</a></li>
@@ -457,6 +444,16 @@
             </a>
             {% endif %}
         </div>
+
+        <!-- Desktop Fixed Cart (Far Right) -->
+        <a href="{{ url_for('view_cart') }}" class="desktop-cart-icon desktop-only"
+            style="margin-left: 0.75rem; position: relative; text-decoration: none; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #f8fafc; border: 1px solid #cbd5e1; color: var(--secondary); transition: all 0.2s;">
+            <span style="font-size: 1.2rem;">🛒</span>
+            <span class="cart-count-badge"
+                style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 0.7rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; display: none;">
+                0
+            </span>
+        </a>
     </nav>
 
     <style>
@@ -601,6 +598,13 @@
             z-index: 1000;
             border: 1px solid #e2e8f0;
             animation: slideDown 0.2s ease-out;
+        }
+
+        .desktop-cart-icon:hover {
+            transform: scale(1.05);
+            background: white !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary) !important;
         }
 
         .profile-dropdown.show {
