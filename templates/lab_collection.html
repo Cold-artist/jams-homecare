@@ -350,10 +350,15 @@
     }
 </style>
 
+<!-- Data Injection for JS (Prevents Linter Errors) -->
+<script type="application/json" id="lab-tests-data">
+        {{ lab_tests_data | tojson }}
+    </script>
+
 <script>
     // Comprehensive Test Database with Detailed Clinical Info
     // Comprehensive Test Database (Populated from Server)
-    const tests = {{ lab_tests_data | tojson }};
+    const tests = JSON.parse(document.getElementById('lab-tests-data').textContent);
 
     // Populating minimal data for others to avoid code bloat (Logic would fetch from real DB in prod)
     // Add default placeholders for any missing detail fields
