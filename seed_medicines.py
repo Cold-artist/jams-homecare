@@ -135,18 +135,27 @@ def seed_medicines():
 
         print(f"Starting seed of {len(medicines)} medicines...")
         for m in medicines:
-            # 1. Try Specific Brand Logo
-            img = images.get(m.get('brand'), None)
+            # 1. Try Specific Manual Image (User Uploaded)
+            img = None
+            if m['name'] == "Glucon-D Regular 125g":
+                img = "/static/images/medicines/glucond reg125gm.jpg"
+            elif m['name'] == "Dabur Honey 100g":
+                img = "/static/images/medicines/honey100gm.jpg"
+
+            # 2. Try Specific Brand Logo (If no manual override)
+            if not img:
+                img = images.get(m.get('brand'), None)
             
-            # 2. Key Mapping (Manual Overrides for common brands not in dict)
+            # 3. Key Mapping (Manual Overrides for common brands not in dict)
             if not img:
                 if "Baidyanath" in m['name']: img = "https://logo.clearbit.com/baidyanath.co.in"
                 elif "Cipla" in m.get('brand', ''): img = "https://logo.clearbit.com/cipla.com"
                 elif "Glenmark" in m.get('brand', ''): img = "https://logo.clearbit.com/glenmarkpharma.com"
-                elif "Glucon-D" in m['name']: img = "https://logo.clearbit.com/glucond.com" # Retry
+                elif "Glucon-D" in m['brand']: img = "https://logo.clearbit.com/glucond.com" # Retry generic brand if specific item missed
             
-            # 3. Fallback to Category Icon
+            # 4. Fallback to Category Icon
             if not img:
+                img = cat_images.get(m['cat'], "https://i.imgur.com/7X5Xy9C.png")
                 img = cat_images.get(m['cat'], "https://i.imgur.com/7X5Xy9C.png")
             
             med = Medicine(
