@@ -1193,7 +1193,7 @@ def seed_production_data():
                     # 1. Try Specific Manual Image (User Uploaded)
                     img = None
                     if m['name'] == "Glucon-D Regular 125g":
-                        img = "/static/images/medicines/glucond reg125gm.jpg"
+                        img = "/static/images/medicines/glucond_reg125gm.jpg"
                     elif m['name'] == "Dabur Honey 100g":
                         img = "/static/images/medicines/honey100gm.jpg"
 
