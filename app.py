@@ -693,21 +693,13 @@ def checkout_cart():
     # Create a summary string for the "Service Type" field
     order_summary = ", ".join([f"{item['name']} x{item['qty']}" for item in cart])
     
-    # Pre-fill specific booking logic for Cart Orders
-    # For now, we reuse the Book Home Visit form but contextually adapt it?
-    # Or determining if we should just render the Booking Form with pre-fills.
+    # Determine Service Type based on cart content
+    has_lab_test = any(item['type'] == 'lab_test' for item in cart)
+    service_type = 'Lab & Pharmacy Order' if has_lab_test else 'Pharmacy Delivery'
     
-    # Let's direct them to a text-based checkout acting as "Home Visit" for now
-    # But passing the 'order_summary' as the service_type context
-    
-    form = BookingForm()
-    if form.validate_on_submit():
-        # ... logic to save booking with 'order_summary' ...
-        # logic duplicated from book_home_visit but customized
-        pass # Placeholder for now, typically re-use book_home_visit endpoint
-        
-    # Redirect to Book Home Visit with query params
-    return redirect(url_for('book_home_visit', service='Pharmacy Order', details=order_summary, price=total))
+    # Redirect to Booking Form with context
+    # We pass 'details' as the order summary so the form knows what's being booked
+    return redirect(url_for('book_home_visit', service=service_type, details=order_summary, price=total))
 
 
 @app.route('/register', methods=['GET', 'POST'])

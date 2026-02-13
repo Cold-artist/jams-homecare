@@ -16,8 +16,9 @@
                 style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid var(--border);">
                 <div>
                     <h4 style="margin: 0; color: var(--text-main); font-size: 1.1rem;">{{ item.name }}</h4>
-                    <span style="font-size: 0.85rem; color: var(--text-muted); text-transform: capitalize;">{{ item.type
-                        }}</span>
+                    <span style="font-size: 0.85rem; color: var(--text-muted); text-transform: capitalize;">
+                        {% if item.type == 'lab_test' %}🧪 Lab Test{% else %}💊 Medicine{% endif %}
+                    </span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 2rem;">
                     <span style="font-weight: 600; color: var(--text-main);">{{ item.qty }} x ₹{{ item.price }}</span>
