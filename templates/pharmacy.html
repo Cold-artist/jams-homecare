@@ -235,17 +235,18 @@
                 .then(data => {
                     if (data.status === 'success') {
                         // Update Cart Badge (Now in Navbar)
-                        const cartCount = document.getElementById('nav-cart-count');
+                        // Update Cart Badge (Now in Navbar - Class based for multiple icons)
+                        const cartCounts = document.querySelectorAll('.cart-count-badge');
 
-                        if (cartCount) {
-                            cartCount.innerText = data.cart_count;
-                            cartCount.style.display = 'flex'; // Show badge
-                            cartCount.classList.add('pulse'); // Animation hint
+                        cartCounts.forEach(el => {
+                            el.innerText = data.cart_count;
+                            el.style.display = 'flex';
+                            el.classList.add('pulse');
+                        });
 
-                            setTimeout(() => {
-                                cartCount.classList.remove('pulse');
-                            }, 2000);
-                        }
+                        setTimeout(() => {
+                            cartCounts.forEach(el => el.classList.remove('pulse'));
+                        }, 2000);
 
                         // Reset Button
                         this.innerText = "Added ✓";

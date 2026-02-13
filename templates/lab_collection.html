@@ -608,14 +608,18 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success') {
-                    // Update Badge
-                    const cartCount = document.getElementById('nav-cart-count'); // Using the navbar badge ID we added earlier
-                    if (cartCount) {
-                        cartCount.innerText = data.cart_count;
-                        cartCount.style.display = 'flex';
-                        cartCount.classList.add('pulse');
-                        setTimeout(() => cartCount.classList.remove('pulse'), 2000);
-                    }
+                    // Update Badge (All instances: Desktop & Mobile)
+                    const cartCounts = document.querySelectorAll('.cart-count-badge');
+
+                    cartCounts.forEach(el => {
+                        el.innerText = data.cart_count;
+                        el.style.display = 'flex';
+                        el.classList.add('pulse');
+                    });
+
+                    setTimeout(() => {
+                        cartCounts.forEach(el => el.classList.remove('pulse'));
+                    }, 2000);
 
                     btn.innerHTML = '✓';
                     btn.style.background = '#10b981';
