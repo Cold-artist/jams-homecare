@@ -180,6 +180,43 @@ def seed_medicines():
             elif m['name'] == "Zandu Chyawanprash 900g":
                  img = "/static/images/medicines/zandu900gm.jpg"
 
+            elif m['name'] == "Lactogen Pro 1":
+                 img = "/static/images/medicines/lactogenpro1.jpg"
+            elif m['name'] == "Lactogen Pro 2":
+                 img = "/static/images/medicines/lactogenpro2.jpg"
+            elif m['name'] == "Lactogen Pro 3":
+                 img = "/static/images/medicines/lactogenpro3.jpg"
+            elif m['name'] == "Lactogen Pro 4":
+                 img = "/static/images/medicines/lactogenpro4.jpg"
+            elif m['name'] == "Dabur Chyawanprash 250g":
+                 img = "/static/images/medicines/dabur25ogm.jpg"
+            elif m['name'] == "Dabur Chyawanprash 500g":
+                 img = "/static/images/medicines/dabur500gm.jpg"
+            elif m['name'] == "Dabur Chyawanprash 1kg":
+                 img = "/static/images/medicines/dabur1kg.jpg"
+            elif m['name'] == "Dabur Chyawanprash Sugar Free 500g":
+                 img = "/static/images/medicines/dabursugarfree500.jpg"
+            elif m['name'] == "Dabur Chyawanprash Sugar Free 900g":
+                 img = "/static/images/medicines/dabursugarfree900gm.jpg"
+            elif m['name'] == "Dabur Dashmularishta 450ml":
+                 img = "/static/images/medicines/daburdashmularishta450gm.jpg"
+            elif m['name'] == "Dabur Dashmularishta 680ml":
+                 img = "/static/images/medicines/dashmularishta680ml.jpg"
+            elif m['name'] == "Dabur Ashokarishta 450ml":
+                 img = "/static/images/medicines/ashokarishta-450ml.jpg"
+            elif m['name'] == "Dabur Ashokarishta 680ml":
+                 img = "/static/images/medicines/ashokarishta680ml.jpg"
+            elif m['name'] == "Dabur Punarnavarishta 450ml":
+                 img = "/static/images/medicines/punarnavarishta450ml.jpg"
+            elif m['name'] == "Dabur Ashwagandharishta 680ml":
+                 img = "/static/images/medicines/ashwagandharishta680ml.jpg"
+            elif m['name'] == "Dabur Pathyadiarishta 450ml":
+                 img = "/static/images/medicines/dabur-parthadyarishta.jpg"
+            elif m['name'] == "Dabur Lohasava 450ml":
+                 img = "/static/images/medicines/lauhasaya450ml.jpg"
+            elif m['name'] == "Dabur Lohasava 680ml":
+                 img = "/static/images/medicines/lauhasava680ml.jpg"
+
             # 2. Try Specific Brand Logo (If no manual override)
             if not img:
                 img = images.get(m.get('brand'), None)
