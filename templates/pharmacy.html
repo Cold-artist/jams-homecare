@@ -174,71 +174,67 @@
             align-items: stretch;
             /* Full Height Stretch */
             height: auto !important;
-            min-height: 150px;
-            /* Taller for better proportion */
+            /* Let content dictate height */
+            min-height: 110px;
+            /* Reduced from 150px to remove whitespace */
             padding: 0 !important;
-            /* No padding on card itself */
             border-radius: 12px;
-            /* Smooth corners */
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             border: 1px solid #f0f0f0;
             width: 100%;
             margin: 0;
             overflow: hidden;
-            /* Clip image corners */
         }
 
-        /* 1. Left Side: Full Block Image (40%) */
+        /* 1. Left Side: Fixed Square Image Block (35% or Fixed 100px) */
         .glass-card div[style*="height: 140px"] {
-            width: 40% !important;
-            min-width: 40% !important;
+            width: 110px !important;
+            /* Fixed Width */
+            min-width: 110px !important;
             height: auto !important;
-            min-height: 150px;
-            /* Match card min-height */
+            /* Full layout height */
+            min-height: 110px;
             margin: 0 !important;
             border-radius: 0 !important;
-            /* Square edges inside card */
             background: #f8f9fa !important;
-            /* Light Gray Block */
+            /* Light Gray */
             border: none;
             border-right: 1px solid #f0f0f0;
-            padding: 10px;
-            /* Breathing room for image inside block */
+            padding: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .glass-card img {
-            max-width: 90% !important;
-            max-height: 90% !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
             width: auto;
             height: auto;
             object-fit: contain;
             mix-blend-mode: multiply;
-            /* Better blend on gray bg if white image */
         }
 
-        /* 2. Right Side: Content Column (60%) */
+        /* 2. Right Side: Content Column (Fills remaining space) */
         .glass-card div[style*="padding: 1.5rem"] {
-            padding: 12px 12px 12px 16px !important;
-            width: 60%;
+            padding: 10px 10px 10px 12px !important;
+            /* Tighter Padding */
             flex: 1;
+            /* Take remaining width */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            /* Spread content out */
+            /* Evenly space top/bottom */
             position: relative;
-            min-height: 150px;
         }
 
-        /* Title - Clean & Professional */
+        /* Title - Compact & Clean */
         .glass-card h3 {
-            font-size: 0.95rem !important;
+            font-size: 0.9rem !important;
             line-height: 1.3 !important;
             color: #111827;
             font-weight: 600;
-            margin-bottom: 6px !important;
+            margin-bottom: 4px !important;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             line-clamp: 2;
@@ -254,8 +250,8 @@
             color: #6b7280;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: auto !important;
-            /* Push title/price down */
+            margin-bottom: 2px !important;
+            /* Tighter */
             font-weight: 600;
             display: block;
         }
