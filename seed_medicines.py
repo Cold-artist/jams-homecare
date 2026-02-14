@@ -151,8 +151,34 @@ def seed_medicines():
                 img = "/static/images/medicines/glucondorange200gm.jpg"
             elif m['name'] == "Glucon-D Orange 450g":
                 img = "/static/images/medicines/glucondorange450gm.jpg"
+            elif m['name'] == "Glucon-D Orange 1kg":
+                 img = "/static/images/medicines/glucondorange1kg.jpg"
+            elif m['name'] == "Glucon-D Nimbu Pani 125g":
+                img = "/static/images/medicines/glucondnimbu125gm.jpg"
+            elif m['name'] == "Glucon-D Nimbu Pani 450g":
+                img = "/static/images/medicines/glucondnimbu450gm.jpg"
+            elif m['name'] == "Glucon-D Nimbu Pani 1kg":
+                img = "/static/images/medicines/glucondnimbu1kg.jpg"
             elif m['name'] == "Dabur Honey 100g":
                 img = "/static/images/medicines/honey100gm.jpg"
+            elif m['name'] == "Dabur Honey 200g":
+                img = "/static/images/medicines/honey250gm.jpg" # Using 250gm image for 200g listing
+            elif m['name'] == "Dabur Honey 600g":
+                img = "/static/images/medicines/honey600gm.jpg"
+            elif m['name'] == "Sat Isabgol 50g":
+                 img = "/static/images/medicines/satisabgol50gm.jpg"
+            elif m['name'] == "Sat Isabgol 100g":
+                 img = "/static/images/medicines/satisabgol100gm.jpg"
+            elif m['name'] == "Sat Isabgol 200g":
+                 img = "/static/images/medicines/satisabgol200gm.jpg"
+            elif m['name'] == "Little Baby Wipes (30 Wipes)":
+                 img = "/static/images/medicines/wipes30pc.jpg"
+            elif m['name'] == "Little Baby Wipes (72 Wipes)":
+                 img = "/static/images/medicines/wipes72pc.jpg"
+            elif m['name'] == "Zandu Chyawanprash 450g":
+                 img = "/static/images/medicines/zandu450gm.jpg"
+            elif m['name'] == "Zandu Chyawanprash 900g":
+                 img = "/static/images/medicines/zandu900gm.jpg"
 
             # 2. Try Specific Brand Logo (If no manual override)
             if not img:
