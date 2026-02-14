@@ -789,6 +789,34 @@ def trigger_seed_medicines():
     except Exception as e:
         return f"Seeding Failed: {e}"
 
+    except Exception as e:
+        return f"Seeding Failed: {e}"
+
+@app.route('/debug-images')
+def debug_images():
+    import os
+    try:
+        # Check File System
+        static_path = os.path.join(app.root_path, 'static', 'images', 'medicines')
+        if os.path.exists(static_path):
+            files = os.listdir(static_path)
+        else:
+            files = ["Directory Not Found"]
+            
+        # Check Database
+        med = Medicine.query.filter_by(name="Glucon-D Regular 250g").first()
+        db_url = med.image_url if med else "Medicine Not Found"
+        
+        return f"""
+        <h1>Debug Info</h1>
+        <h3>Directory: {static_path}</h3>
+        <pre>{files}</pre>
+        <h3>DB URL for Glucon-D Regular 250g:</h3>
+        <pre>{db_url}</pre>
+        """
+    except Exception as e:
+        return f"Error: {e}"
+
 @app.route('/health_check')
 def health_check():
     """Debug route to expose production errors."""
