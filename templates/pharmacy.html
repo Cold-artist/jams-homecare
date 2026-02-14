@@ -186,45 +186,46 @@
             overflow: hidden;
         }
 
-        /* 1. Left Side: Fixed Square Image Block (35% or Fixed 100px) */
+        /* 1. Left Side: Maximized Square Image Block (125px) */
         .glass-card div[style*="height: 140px"] {
-            width: 110px !important;
-            /* Fixed Width */
-            min-width: 110px !important;
+            width: 125px !important;
+            /* Fixed Width - Larger */
+            min-width: 125px !important;
             height: auto !important;
-            /* Full layout height */
-            min-height: 110px;
+            min-height: 125px;
+            /* Ensure Square */
             margin: 0 !important;
             border-radius: 0 !important;
-            background: #f8f9fa !important;
-            /* Light Gray */
+            background: #fff !important;
+            /* White BG for clean look */
             border: none;
             border-right: 1px solid #f0f0f0;
-            padding: 8px;
+            padding: 2px;
+            /* Minimal padding to Maximize Image */
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .glass-card img {
-            max-width: 100% !important;
-            max-height: 100% !important;
+            max-width: 98% !important;
+            /* Fill the box */
+            max-height: 98% !important;
             width: auto;
             height: auto;
             object-fit: contain;
-            mix-blend-mode: multiply;
+            mix-blend-mode: normal;
+            /* Remove blend for crispness */
         }
 
         /* 2. Right Side: Content Column (Fills remaining space) */
         .glass-card div[style*="padding: 1.5rem"] {
-            padding: 10px 10px 10px 12px !important;
-            /* Tighter Padding */
+            padding: 8px 8px 8px 12px !important;
+            /* Adjusted Padding */
             flex: 1;
-            /* Take remaining width */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            /* Evenly space top/bottom */
             position: relative;
         }
 
