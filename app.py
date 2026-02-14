@@ -777,10 +777,10 @@ def admin_login():
     return render_template('admin_login.html', form=form)
 
 @app.route('/admin/seed-medicines')
-@login_required # Ideally protect this
 def trigger_seed_medicines():
-    if not current_user.is_admin and current_user.email != ADMIN_EMAIL:
-         return "Access Denied", 403
+    # Check for Admin Session (Not Patient Login)
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
     
     try:
         from seed_medicines import seed_medicines
