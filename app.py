@@ -776,6 +776,19 @@ def admin_login():
             
     return render_template('admin_login.html', form=form)
 
+@app.route('/admin/seed-medicines')
+@login_required # Ideally protect this
+def trigger_seed_medicines():
+    if not current_user.is_admin and current_user.email != ADMIN_EMAIL:
+         return "Access Denied", 403
+    
+    try:
+        from seed_medicines import seed_medicines
+        seed_medicines()
+        return "Medicines Seeded Successfully! <a href='/pharmacy'>Go to Pharmacy</a>"
+    except Exception as e:
+        return f"Seeding Failed: {e}"
+
 @app.route('/health_check')
 def health_check():
     """Debug route to expose production errors."""
