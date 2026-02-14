@@ -139,6 +139,18 @@ def seed_medicines():
             img = None
             if m['name'] == "Glucon-D Regular 125g":
                 img = "/static/images/medicines/glucond_reg125gm.jpg"
+            elif m['name'] == "Glucon-D Regular 250g":
+                img = "/static/images/medicines/glucond250gm.jpg"
+            elif m['name'] == "Glucon-D Regular 500g":
+                img = "/static/images/medicines/glucond500gm.jpg"
+            elif m['name'] == "Glucon-D Regular 1kg":
+                img = "/static/images/medicines/glucond1kg.jpg"
+            elif m['name'] == "Glucon-D Orange 125g":
+                img = "/static/images/medicines/glucondorange125gm.jpg"
+            elif m['name'] == "Glucon-D Orange 200g":
+                img = "/static/images/medicines/glucondorange200gm.jpg"
+            elif m['name'] == "Glucon-D Orange 450g":
+                img = "/static/images/medicines/glucondorange450gm.jpg"
             elif m['name'] == "Dabur Honey 100g":
                 img = "/static/images/medicines/honey100gm.jpg"
 
