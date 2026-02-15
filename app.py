@@ -831,6 +831,22 @@ def debug_images():
     except Exception as e:
         return f"Error: {e}"
 
+@app.route('/debug-config')
+def debug_config():
+    """Safe route to check if environment variables are loaded."""
+    def mask(s):
+        return f"{s[:2]}...{s[-2:]}" if s and len(s) > 4 else "MISSING"
+
+    return f"""
+    <h1>Configuration Check</h1>
+    <p><strong>MAIL_USERNAME:</strong> {mask(app.config.get('MAIL_USERNAME'))}</p>
+    <p><strong>MAIL_PASSWORD:</strong> {'SET' if app.config.get('MAIL_PASSWORD') else 'MISSING'}</p>
+    <p><strong>RAZORPAY_KEY_ID:</strong> {mask(RAZORPAY_KEY_ID)}</p>
+    <p><strong>SECRET_KEY:</strong> {'SET' if app.config.get('SECRET_KEY') else 'MISSING'}</p>
+    <hr>
+    <p><small>If variables are MISSING, go to Render -> Environment and add them. Then Restart Service.</small></p>
+    """
+
 @app.route('/health_check')
 def health_check():
     """Debug route to expose production errors."""
