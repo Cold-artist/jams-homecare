@@ -57,14 +57,21 @@ if RAZORPAY_KEY_SECRET: RAZORPAY_KEY_SECRET = RAZORPAY_KEY_SECRET.strip()
 razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
 # Email Configuration
+# Email Configuration (Ultra-Robust for Render)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME') or os.environ.get('mail_username')
-if app.config['MAIL_USERNAME']: app.config['MAIL_USERNAME'] = app.config['MAIL_USERNAME'].strip()
+app.config['MAIL_PORT'] = 465  # SSL is more reliable on Cloud
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USE_TLS'] = False # Disable TLS when using SSL
 
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD') or os.environ.get('mail_password')
-if app.config['MAIL_PASSWORD']: app.config['MAIL_PASSWORD'] = app.config['MAIL_PASSWORD'].strip()
+# Robust Env Loader (Case-Insensitive Scan)
+def get_env_robust(key_fragment):
+    for k, v in os.environ.items():
+        if key_fragment.lower() == k.lower():
+            return v.strip().strip("'").strip('"')
+    return None
+
+app.config['MAIL_USERNAME'] = get_env_robust('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = get_env_robust('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 
 mail = Mail(app)
