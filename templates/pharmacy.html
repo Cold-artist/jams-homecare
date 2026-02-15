@@ -186,36 +186,37 @@
             overflow: hidden;
         }
 
-        /* 1. Left Side: Maximized Square Image Block (125px) */
+        /* 1. Left Side: "Canvas" Image Block (120px Fixed) */
         .glass-card div[style*="height: 140px"] {
-            width: 125px !important;
-            /* Fixed Width - Larger */
-            min-width: 125px !important;
+            width: 120px !important;
+            /* Fixed Canvas Size */
+            min-width: 120px !important;
             height: auto !important;
-            min-height: 125px;
-            /* Ensure Square */
+            min-height: 120px;
+            /* Square */
             margin: 0 !important;
             border-radius: 0 !important;
             background: #fff !important;
-            /* White BG for clean look */
+            /* PURE WHITE CANVAS */
             border: none;
+            /* No Border - Seamless */
             border-right: 1px solid #f0f0f0;
-            padding: 2px;
-            /* Minimal padding to Maximize Image */
+            /* Separator only */
+            padding: 8px;
+            /* Safe Zone Padding */
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .glass-card img {
-            max-width: 98% !important;
-            /* Fill the box */
-            max-height: 98% !important;
+            max-width: 100% !important;
+            /* Fit within Safe Zone */
+            max-height: 100% !important;
             width: auto;
             height: auto;
             object-fit: contain;
             mix-blend-mode: normal;
-            /* Remove blend for crispness */
         }
 
         /* 2. Right Side: Content Column (Fills remaining space) */
