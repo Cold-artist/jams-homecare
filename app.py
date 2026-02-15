@@ -529,7 +529,9 @@ Our team will call you shortly to confirm staff details.
 Regards,
 Jams Homecare
 """
-             send_email_notification(f"Payment Received - #HHC{booking.id:04d}", paid_body, [booking.email])
+             email_sent = send_email_notification(f"Payment Received - #HHC{booking.id:04d}", paid_body, [booking.email])
+             if not email_sent:
+                 flash('Warning: Email configuration missing. Confirmation email not sent.', 'warning')
 
         if is_simulation:
             flash('Payment Successful! (Simulation Mode)', 'success')
