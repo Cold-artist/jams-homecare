@@ -60,10 +60,10 @@ razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME') or os.environ.get('mail_username')
 if app.config['MAIL_USERNAME']: app.config['MAIL_USERNAME'] = app.config['MAIL_USERNAME'].strip()
 
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD') or os.environ.get('mail_password')
 if app.config['MAIL_PASSWORD']: app.config['MAIL_PASSWORD'] = app.config['MAIL_PASSWORD'].strip()
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 
@@ -837,14 +837,19 @@ def debug_config():
     def mask(s):
         return f"{s[:2]}...{s[-2:]}" if s and len(s) > 4 else "MISSING"
 
+    # Capture ALL MAIL related keys
+    mail_keys = {k: mask(v) for k, v in os.environ.items() if 'MAIL' in k.upper()}
+
     return f"""
-    <h1>Configuration Check</h1>
-    <p><strong>MAIL_USERNAME:</strong> {mask(app.config.get('MAIL_USERNAME'))}</p>
-    <p><strong>MAIL_PASSWORD:</strong> {'SET' if app.config.get('MAIL_PASSWORD') else 'MISSING'}</p>
-    <p><strong>RAZORPAY_KEY_ID:</strong> {mask(RAZORPAY_KEY_ID)}</p>
-    <p><strong>SECRET_KEY:</strong> {'SET' if app.config.get('SECRET_KEY') else 'MISSING'}</p>
+    <h1>Configuration Check (v3 - Robust)</h1>
+    <h3>Keys Found in Environment:</h3>
+    <pre>{json.dumps(mail_keys, indent=4)}</pre>
     <hr>
-    <p><small>If variables are MISSING, go to Render -> Environment and add them. Then Restart Service.</small></p>
+    <p><strong>App Config (MAIL_USERNAME):</strong> {mask(app.config.get('MAIL_USERNAME'))}</p>
+    <p><strong>App Config (MAIL_PASSWORD):</strong> {'SET' if app.config.get('MAIL_PASSWORD') else 'MISSING'}</p>
+    <p><strong>RAZORPAY_KEY_ID:</strong> {mask(RAZORPAY_KEY_ID)}</p>
+    <hr>
+    <p><small>If "Keys Found" is empty, Render has NOT loaded any variables. Try Manual Deploy or Restart.</small></p>
     """
 
 @app.route('/health_check')
