@@ -852,6 +852,41 @@ def debug_config():
     <p><small>If "Keys Found" is empty, Render has NOT loaded any variables. Try Manual Deploy or Restart.</small></p>
     """
 
+@app.route('/test-email')
+def test_email():
+    """Manual trigger to debug Email Config."""
+    try:
+        recipient = request.args.get('to', app.config.get('MAIL_USERNAME'))
+        if not recipient:
+            return "<h1>Error: No Recipient</h1><p>Set MAIL_USERNAME in Render or pass ?to=your@email.com</p>"
+
+        msg = Message("Test Email from Jams Homecare",
+                      recipients=[recipient])
+        msg.body = "If you are reading this, your Email Configuration is PERFECT! 🚀"
+        
+        # Synchronous Send (No Threading to catch errors)
+        mail.send(msg)
+        
+        return f"""
+        <h1>Success! 🚀</h1>
+        <p>Email sent to: <strong>{recipient}</strong></p>
+        <p>Check your inbox (and Spam folder).</p>
+        <hr>
+        <p><small>Configuration seems correct.</small></p>
+        """
+    except Exception as e:
+        return f"""
+        <h1>Email Failed ❌</h1>
+        <p><strong>Error:</strong> {str(e)}</p>
+        <hr>
+        <h3>Common Fixes:</h3>
+        <ul>
+            <li><strong>AuthenticationError (535):</strong> Your App Password is wrong. Generate a <strong>New</strong> one.</li>
+            <li><strong>Timeout:</strong> Render might be blocking port 587 (rare) or Google is blocking the IP.</li>
+            <li><strong>Data Not Accepted:</strong> Sender address invalid.</li>
+        </ul>
+        """
+
 @app.route('/health_check')
 def health_check():
     """Debug route to expose production errors."""
