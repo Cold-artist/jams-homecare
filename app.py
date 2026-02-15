@@ -59,9 +59,9 @@ razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 # Email Configuration
 # Email Configuration (Ultra-Robust for Render)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 465  # SSL is more reliable on Cloud
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USE_TLS'] = False # Disable TLS when using SSL
+app.config['MAIL_PORT'] = 587  # TLS (Standard) prevents timeouts
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USE_TLS'] = True # Enable TLS for 587
 
 # Robust Env Loader (Case-Insensitive Scan)
 def get_env_robust(key_fragment):
