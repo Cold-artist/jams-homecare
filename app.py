@@ -861,38 +861,60 @@ def debug_config():
 
 @app.route('/test-email')
 def test_email():
-    """Manual trigger to debug Email Config."""
-    try:
-        recipient = request.args.get('to', app.config.get('MAIL_USERNAME'))
-        if not recipient:
-            return "<h1>Error: No Recipient</h1><p>Set MAIL_USERNAME in Render or pass ?to=your@email.com</p>"
+    """Diagnose connectivity to Gmail (Try both TLS/587 and SSL/465)."""
+    import smtplib
+    import ssl
+    import socket
+    
+    recipient = request.args.get('to', app.config.get('MAIL_USERNAME'))
+    username = app.config.get('MAIL_USERNAME')
+    password = app.config.get('MAIL_PASSWORD')
+    
+    if not username or not password:
+        return "<h1>Error: Missing Config</h1><p>MAIL_USERNAME or MAIL_PASSWORD is not set in Render.</p>"
 
-        msg = Message("Test Email from Jams Homecare",
-                      recipients=[recipient])
-        msg.body = "If you are reading this, your Email Configuration is PERFECT! 🚀"
+    report = []
+    success = False
+
+    # 1. Try TLS (Port 587)
+    try:
+        report.append("<h3>Attempt 1: TLS (Port 587)</h3>")
+        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10) # 10s Timeout prevents blank page
+        server.ehlo()
+        server.starttls()
+        server.ehlo()
+        server.login(username, password)
         
-        # Synchronous Send (No Threading to catch errors)
-        mail.send(msg)
-        
-        return f"""
-        <h1>Success! 🚀</h1>
-        <p>Email sent to: <strong>{recipient}</strong></p>
-        <p>Check your inbox (and Spam folder).</p>
-        <hr>
-        <p><small>Configuration seems correct.</small></p>
-        """
+        msg = f"Subject: Test Email (TLS)\n\nThis confirms Port 587 is working!"
+        server.sendmail(username, recipient, msg)
+        server.quit()
+        report.append("<p style='color:green'>✅ Success! Email sent via TLS.</p>")
+        success = True
     except Exception as e:
-        return f"""
-        <h1>Email Failed ❌</h1>
-        <p><strong>Error:</strong> {str(e)}</p>
-        <hr>
-        <h3>Common Fixes:</h3>
-        <ul>
-            <li><strong>AuthenticationError (535):</strong> Your App Password is wrong. Generate a <strong>New</strong> one.</li>
-            <li><strong>Timeout:</strong> Render might be blocking port 587 (rare) or Google is blocking the IP.</li>
-            <li><strong>Data Not Accepted:</strong> Sender address invalid.</li>
-        </ul>
-        """
+        report.append(f"<p style='color:red'>❌ Failed: {str(e)}</p>")
+
+    # 2. Try SSL (Port 465) if TLS failed
+    if not success:
+        try:
+            report.append("<h3>Attempt 2: SSL (Port 465)</h3>")
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context, timeout=10) as server:
+                server.login(username, password)
+                msg = f"Subject: Test Email (SSL)\n\nThis confirms Port 465 is working!"
+                server.sendmail(username, recipient, msg)
+                report.append("<p style='color:green'>✅ Success! Email sent via SSL.</p>")
+                success = True
+        except Exception as e:
+            report.append(f"<p style='color:red'>❌ Failed: {str(e)}</p>")
+
+    return f"""
+    <h1>Email Diagnostic Report</h1>
+    <p><strong>Username:</strong> {username}</p>
+    <hr>
+    {''.join(report)}
+    <hr>
+    <p><small>If you see "AuthenticationError", check your App Password.</small></p>
+    """
 
 @app.route('/health_check')
 def health_check():
