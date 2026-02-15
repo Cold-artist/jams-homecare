@@ -262,7 +262,7 @@ from email.mime.multipart import MIMEMultipart
 
 # Helper: Send Email (Native SMTP + Threading for Reliability)
 # Helper: Send Email (Flask-Mail + Threading for Reliability)
-def send_async_email(app_config, subject, body, recipients):
+def send_async_email(app, subject, body, recipients):
     with app.app_context():
         try:
             # Create Message using Flask-Mail
@@ -277,17 +277,17 @@ def send_async_email(app_config, subject, body, recipients):
             app.logger.error(f"BACKGROUND EMAIL ERROR: {e}")
 
 def send_email_notification(subject, body, recipients):
-    # Pass config explicitly to thread (copying needed context)
-    app_config = app.config.copy()
-    
-    if not app_config['MAIL_USERNAME'] or 'your-email' in app_config['MAIL_USERNAME']:
-        print("Skipping email: No credentials.")
+    # Check credentials before spawning thread
+    if not app.config.get('MAIL_USERNAME') or not app.config.get('MAIL_PASSWORD'):
+        app.logger.warning("Skipping email: No MAIL_USERNAME or MAIL_PASSWORD configured.")
         return False
         
-    # Start Thread
-    email_thread = threading.Thread(target=send_async_email, args=(app_config, subject, body, recipients))
+    # Start Thread with actual app instance (passed to thread)
+    # Note: We pass 'app' (the Flask object) directly. 
+    # This works because 'app' is global here, but passing it is safer for clarity.
+    email_thread = threading.Thread(target=send_async_email, args=(app, subject, body, recipients))
     email_thread.start()
-    print("Email thread started. UI will not block.")
+    app.logger.info(f"Email thread started for {recipients}")
     return True
 
 @app.route('/book-home-visit', methods=['GET', 'POST'])
@@ -304,10 +304,22 @@ def book_home_visit():
             prescription_path = filename
 
         # Calculate Price based on Service/Test (Robust Lookup)
-        booking_price = 499 # Default Visit Charge
+        # Default to 499 unless overridden by Cart or Lab Test
+        booking_price = 499 
+        
+        # 1. CHECK FOR CART TOTAL (Passed via URL from /cart/checkout)
+        cart_total = request.args.get('price')
+        if cart_total:
+            try:
+                booking_price = int(float(cart_total))
+                app.logger.info(f"Booking Price Set from Cart: {booking_price}")
+            except ValueError:
+                app.logger.warning(f"Invalid Cart Price '{cart_total}', defaulting to 499")
+
         service_type = form.service_type.data
         test_name = form.test_name.data
 
+        # 2. CHECK FOR LAB TEST PRICE (Overrides Cart if specific test selected manually)
         if service_type == 'sample_collection' and test_name:
             # Case-insensitive match for robustness
             cleaned_name = test_name.strip()
@@ -315,7 +327,7 @@ def book_home_visit():
             
             if lab_test:
                 booking_price = lab_test.price
-                app.logger.info(f"Price Found: {booking_price} for {test_name}")
+                app.logger.info(f"Price Found from Lab Test Update: {booking_price} for {test_name}")
             else:
                 app.logger.warning(f"Price Lookup Failed for: {test_name}")
 
