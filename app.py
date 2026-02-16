@@ -493,8 +493,8 @@ def payment(booking_id):
                          key_id=RAZORPAY_KEY_ID)
 
 @app.route('/payment/verify', methods=['POST'])
-@app.route('/payment/verify', methods=['POST'])
 def payment_verify():
+    app.logger.info("----- ENTERED PAYMENT VERIFY ROUTE -----")
     import traceback
     try:
         data = request.form
