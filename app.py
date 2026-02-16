@@ -526,18 +526,17 @@ def payment_verify():
         
         app.logger.info(f"Booking {booking.id} Confirmed & Paid: {data['razorpay_payment_id']}")
 
-        # Send Payment Confirmation Email
-        if booking.email:
-             # Prepare WhatsApp message for easier contact
-             service_names = {
-                'medical_care': 'Medical Home Services',
-                'elderly_care': 'Elderly & Bedridden Care',
-                'sample_collection': 'Home Sample Collection',
-                'medicine_delivery': 'Medicine Delivery & Support'
-            }
-             service_display = service_names.get(booking.service_type, booking.service_type)
-             
-             paid_body = f"""Dear {booking.patient_name},
+        # --- PREPARE EMAIL CONTENT ---
+        # Prepare WhatsApp message for easier contact (kept for context, though unused here)
+        service_names = {
+            'medical_care': 'Medical Home Services',
+            'elderly_care': 'Elderly & Bedridden Care',
+            'sample_collection': 'Home Sample Collection',
+            'medicine_delivery': 'Medicine Delivery & Support'
+        }
+        service_display = service_names.get(booking.service_type, booking.service_type)
+        
+        paid_body = f"""Dear {booking.patient_name},
 
 Payment Successful! Your booking is confirmed.
 
@@ -552,16 +551,23 @@ Our team will call you shortly to confirm staff details.
 Regards,
 Jams Homecare
 """
-             email_sent = send_email_notification(f"Payment Received - #HHC{booking.id:04d}", paid_body, [booking.email], sync=True)
-             if not email_sent:
-                 flash('Payment Confirmed, but Email Failed. Check /test-email for details.', 'warning')
+
+        # --- SEND EMAIL (Robust Wrap) ---
+        if booking.email:
+            try:
+                 email_sent = send_email_notification(f"Payment Received - #HHC{booking.id:04d}", paid_body, [booking.email], sync=True)
+                 if not email_sent:
+                     flash('Payment Confirmed, but Email Failed. Check /test-email for details.', 'warning')
+            except Exception as e:
+                 app.logger.error(f"CRITICAL EMAIL FAIL: {e}")
+                 # Don't crash payment success for email failure
+                 flash(f"Payment Confirmed. Email Error: {str(e)}", 'warning')
 
         if is_simulation:
             flash('Payment Successful! (Simulation Mode)', 'success')
         else:
-            flash('Payment Successful! Your booking is confirmed.', 'success')
-
-        # Redirect to Dedicated Success Page
+            flash('Payment Successful!', 'success')
+            
         return redirect(url_for('payment_success', booking_id=booking.id))
         
     except razorpay.errors.SignatureVerificationError:
@@ -570,14 +576,15 @@ Jams Homecare
         return redirect(url_for('dashboard'))
     except Exception as e:
         app.logger.error(f"Payment Error: {e}")
-        flash('An error occurred during payment verification.', 'danger')
-        return redirect(url_for('dashboard'))
+        # Crash Here = 500 is better than silent fail, but let's show the error
+        return f"<h1>Payment Error (Debug)</h1><p>{str(e)}</p>", 500
 
 @app.route('/payment/success/<int:booking_id>')
 def payment_success(booking_id):
     booking = Booking.query.get_or_404(booking_id)
     # Security: Only show if confirmed (prevent peeking)
     if booking.status != 'confirmed':
+        flash("This booking is not confirmed.", "warning")
         return redirect(url_for('home'))
         
     service_names = {
