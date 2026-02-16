@@ -16,6 +16,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 import razorpay
 import json
+import requests # Added for SendGrid API
 import hmac
 import hashlib
 from sqlalchemy import func, inspect # Critical for db_recovery
@@ -60,6 +61,8 @@ razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 # Email Configuration (Ultra-Robust for Render)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587  # TLS (Standard) prevents timeouts
+app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))  # TLS (Standard) prevents timeouts
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USE_TLS'] = True # Enable TLS for 587
 app.config['MAIL_TIMEOUT'] = 10 # Force Timeout in 10s (prevents hanging)
@@ -74,6 +77,10 @@ def get_env_robust(key_fragment):
 app.config['MAIL_USERNAME'] = get_env_robust('MAIL_USERNAME')
 app.config['MAIL_PASSWORD'] = get_env_robust('MAIL_PASSWORD')
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', app.config['MAIL_USERNAME'])
+
+# SendGrid Configuration (Robust Fallback)
+app.config['SENDGRID_API_KEY'] = os.environ.get('SENDGRID_API_KEY', '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')
 
 mail = Mail(app)
 
@@ -269,21 +276,51 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # Helper: Send Email (Native SMTP + Threading for Reliability)
-# Helper: Send Email (Flask-Mail + Threading for Reliability)
+# Helper: Send Email (SendGrid API V3 - Render Firewall Bypass)
 def send_async_email(app, subject, body, recipients):
     with app.app_context():
+        # Priority 1: SendGrid API (Port 80/443 - Firewall Safe)
+        sg_key = app.config.get('SENDGRID_API_KEY')
+        sender = "jamshomecare@gmail.com" # Verified User
+        
+        if sg_key and sg_key.startswith("SG."):
+            try:
+                url = "https://api.sendgrid.com/v3/mail/send"
+                headers = {
+                    "Authorization": f"Bearer {sg_key}",
+                    "Content-Type": "application/json"
+                }
+                
+                # Handling Multiple Recipients
+                to_emails = [{"email": r} for r in recipients]
+                
+                payload = {
+                    "personalizations": [{"to": to_emails}],
+                    "from": {"email": sender, "name": "Jams Homecare"},
+                    "subject": subject,
+                    "content": [{"type": "text/plain", "value": body}]
+                }
+                
+                response = requests.post(url, headers=headers, json=payload, timeout=10)
+                
+                if 200 <= response.status_code < 300:
+                    app.logger.info(f"SendGrid Success: {response.status_code} to {recipients}")
+                    return True
+                else:
+                    app.logger.error(f"SendGrid Failed: {response.status_code} - {response.text}")
+                    # Don't return False yet, try fallback if possible (but unlikely on Render)
+            except Exception as e:
+                app.logger.error(f"SendGrid Exception: {e}")
+
+        # Priority 2: Standard SMTP (Flask-Mail) - Fallback for LocalDev or if Key missing
         try:
-            # Create Message using Flask-Mail
             msg = Message(subject, recipients=recipients)
             msg.body = body
-            # HTML body support if needed in future
-            # msg.html = body 
-            
             mail.send(msg)
-            app.logger.info(f"Background Thread: Email sent successfully to {recipients}")
+            app.logger.info(f"SMTP Success (Fallback) to {recipients}")
             return True
         except Exception as e:
-            app.logger.error(f"BACKGROUND EMAIL ERROR: {e}")
+            app.logger.error(f"SMTP Fallback Failed: {e}")
             return False
 
 def send_email_notification(subject, body, recipients, sync=False):
@@ -1414,69 +1451,22 @@ def init_data():
 #     app.logger.error(f"CRITICAL: Startup Seeding Failed: {e}")
 #     print(f"CRITICAL: Startup Seeding Failed: {e}") # Ensure it hits stdout
 
-# --- EMAIL DIAGNOSTIC TOOL (V2) ---
-# DISABLED: Causing Startup Crash on Render.
-# @app.route('/test-email')
-# def test_email_route():
-#     import smtplib
-#     import socket
-#     import ssl
-#     
-#     user = app.config.get('MAIL_USERNAME')
-#     pwd = app.config.get('MAIL_PASSWORD')
-#     TIMEOUT = 5
-#
-#     results = []
-#     results.append("<h1>🚀 Email Diagnostic Report v2</h1>")
-#     results.append(f"Config: User={user}, Password={'SET' if pwd else 'MISSING'}")
-#     
-#     # 1. DNS Resolution
-#     try:
-#         ip = socket.gethostbyname('smtp.gmail.com')
-#         results.append(f"✅ DNS Resolved: {ip}")
-#     except Exception as e:
-#         results.append(f"❌ DNS Failed: {e}")
-#         return "<br>".join(results)
-#
-#     # 2. Try Port 587 (TLS)
-#     results.append("<br>Attempting Port 587 (Standard TLS)...")
-#     try:
-#         with smtplib.SMTP('smtp.gmail.com', 587, timeout=TIMEOUT) as s:
-#             s.starttls()
-#             s.login(user, pwd)
-#             results.append("✅ Port 587 Success! (Authentication OK)")
-#     except Exception as e:
-#         err = str(e)
-#         if "Network is unreachable" in err:
-#              results.append(f"⚠️ Port 587 BLOCKED by Firewall (Network Unreachable)")
-#         else:
-#              results.append(f"⚠️ Port 587 Failed: {err}")
-#
-#     # 3. Try Port 465 (SSL)
-#     results.append("<br>Attempting Port 465 (Secure SSL)...")
-#     try:
-#         context = ssl.create_default_context()
-#         with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=TIMEOUT) as s:
-#             s.login(user, pwd)
-#             results.append("✅ Port 465 Success! (Authentication OK)")
-#     except Exception as e:
-#         err = str(e)
-#         if "Network is unreachable" in err:
-#              results.append(f"⚠️ Port 465 BLOCKED by Firewall (Network Unreachable)")
-#         else:
-#              results.append(f"⚠️ Port 465 Failed: {err}")
-#
-#     # 4. Try Port 2525 (Alternative TLS)
-#     results.append("<br>Attempting Port 2525 (Alternative TLS)...")
-#     try:
-#         with smtplib.SMTP('smtp.gmail.com', 2525, timeout=TIMEOUT) as s:
-#             s.starttls()
-#             s.login(user, pwd)
-#             results.append("✅ Port 2525 Success! (Use THIS Port!)")
-#     except Exception as e:
-#         results.append(f"⚠️ Port 2525 Failed: {e}")
-#
-#     return "<br>".join(results)
+# --- EMAIL DIAGNOSTIC TOOL (V3 - SendGrid) ---
+@app.route('/test-email')
+def test_email_route():
+    import socket
+    
+    # 1. Trigger SendGrid API Call
+    recipient = "jamshomecare@gmail.com" # Send to self
+    subject = "SendGrid Test - Jams Homecare"
+    body = "If you see this, SendGrid is WORKING! The firewall is bypassed."
+    
+    success = send_async_email(app, subject, body, [recipient])
+    
+    if success:
+        return f"<h1>✅ SendGrid Success!</h1><p>Email sent to {recipient}. Check your Inbox/Spam.</p><p>You can now enable confirmations for everyone.</p>"
+    else:
+        return f"<h1>❌ SendGrid Failed.</h1><p>Check the logs for 'SendGrid Failed' or 'Exception'.</p>"
 
 
 # --- SELF-HEALING DATABASE ---
