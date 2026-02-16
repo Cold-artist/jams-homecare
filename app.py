@@ -280,15 +280,31 @@ def send_async_email(app, subject, body, recipients):
             
             mail.send(msg)
             app.logger.info(f"Background Thread: Email sent successfully to {recipients}")
+            return True
         except Exception as e:
             app.logger.error(f"BACKGROUND EMAIL ERROR: {e}")
+            return False
 
-def send_email_notification(subject, body, recipients):
+def send_email_notification(subject, body, recipients, sync=False):
     # Check credentials before spawning thread
     if not app.config.get('MAIL_USERNAME') or not app.config.get('MAIL_PASSWORD'):
         app.logger.warning("Skipping email: No MAIL_USERNAME or MAIL_PASSWORD configured.")
         return False
         
+    if sync:
+        # Blocking Send (For Critical Flows to catch errors)
+        try:
+             success = send_async_email(app, subject, body, recipients)
+             if success:
+                 app.logger.info(f"Sync Email sent successfully to {recipients}")
+                 return True
+             else:
+                 app.logger.error("Sync Email Failed inside send_async_email")
+                 return False
+        except Exception as e:
+             app.logger.error(f"Sync Email Failed: {e}")
+             return False
+
     # Start Thread with actual app instance (passed to thread)
     # Note: We pass 'app' (the Flask object) directly. 
     # This works because 'app' is global here, but passing it is safer for clarity.
@@ -536,9 +552,9 @@ Our team will call you shortly to confirm staff details.
 Regards,
 Jams Homecare
 """
-             email_sent = send_email_notification(f"Payment Received - #HHC{booking.id:04d}", paid_body, [booking.email])
+             email_sent = send_email_notification(f"Payment Received - #HHC{booking.id:04d}", paid_body, [booking.email], sync=True)
              if not email_sent:
-                 flash('Warning: Email configuration missing. Confirmation email not sent.', 'warning')
+                 flash('Payment Confirmed, but Email Failed. Check /test-email for details.', 'warning')
 
         if is_simulation:
             flash('Payment Successful! (Simulation Mode)', 'success')
