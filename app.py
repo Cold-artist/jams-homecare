@@ -494,25 +494,15 @@ def payment(booking_id):
 
 @app.route('/payment/verify', methods=['POST'])
 def payment_verify():
-    # Use simple print for Render logs (bypassing potential FileHandler issues)
-    print("DEBUG: ENTERED payment_verify")
-    import traceback
-    
     try:
         data = request.form
         booking_id = request.args.get('booking_id')
         
         if not booking_id:
-            print("ERROR: Missing booking_id")
-            return "Error: Missing booking_id query parameter", 400
+            flash("System Error: Booking ID not found.", 'danger')
+            return redirect(url_for('home'))
 
-        print(f"DEBUG: Processing Booking ID: {booking_id}")
         booking = Booking.query.get_or_404(booking_id)
-
-        # Lazy Init Razorpay to prevent startup crash
-        key_id = os.environ.get('RAZORPAY_KEY_ID', '').strip()
-        key_secret = os.environ.get('RAZORPAY_KEY_SECRET', '').strip()
-        client = razorpay.Client(auth=(key_id, key_secret))
 
         # Handle MOCK/SIMULATION Mode
         is_simulation = data.get('razorpay_order_id', '').startswith('order_mock_')
@@ -524,15 +514,16 @@ def payment_verify():
                 'razorpay_payment_id': data['razorpay_payment_id'],
                 'razorpay_signature': data['razorpay_signature']
             }
-            client.utility.verify_payment_signature(params_dict)
+            razorpay_client.utility.verify_payment_signature(params_dict)
         
         # --- SUCCESS PATH ---
         booking.status = 'confirmed'
         booking.payment_method = 'online_paid'
         db.session.commit()
-        print(f"SUCCESS: Booking {booking.id} Confirmed")
+        app.logger.info(f"Booking {booking.id} Confirmed & Paid: {data['razorpay_payment_id']}")
 
         # --- PREPARE EMAIL CONTENT ---
+        # Prepare WhatsApp message for easier contact (kept for context, though unused here)
         service_names = {
             'medical_care': 'Medical Home Services',
             'elderly_care': 'Elderly & Bedridden Care',
@@ -560,13 +551,13 @@ Jams Homecare
         # --- SEND EMAIL (Robust Wrap) ---
         if booking.email:
             try:
-                 # Pass app object if needed, but sync=True uses current_app usually
                  email_sent = send_email_notification(f"Payment Received - #HHC{booking.id:04d}", paid_body, [booking.email], sync=True)
                  if not email_sent:
                      flash('Payment Confirmed, but Email Failed. Check /test-email for details.', 'warning')
-            except Exception as email_err:
-                 print(f"EMAIL ERROR: {email_err}")
-                 flash(f"Payment Confirmed. Email Error: {str(email_err)}", 'warning')
+            except Exception as e:
+                 app.logger.error(f"CRITICAL EMAIL FAIL: {e}")
+                 # Don't crash payment success for email failure
+                 flash(f"Payment Confirmed. Email Error: {str(e)}", 'warning')
 
         if is_simulation:
             flash('Payment Successful! (Simulation Mode)', 'success')
@@ -576,13 +567,13 @@ Jams Homecare
         return redirect(url_for('payment_success', booking_id=booking.id))
         
     except razorpay.errors.SignatureVerificationError:
-        print("ERROR: Signature Verification Failed")
-        flash('Payment Failed. Signature Invalid.', 'danger')
+        app.logger.error("Payment Signature Verification Failed!")
+        flash('Payment Failed. Please try again.', 'danger')
         return redirect(url_for('dashboard'))
     except Exception as e:
-        # ABSOLUTE CRASH CATCHER
-        print(f"FATAL ERROR: {traceback.format_exc()}")
-        return f"<h1>Fatal Application Error</h1><pre>{traceback.format_exc()}</pre>", 500
+        app.logger.error(f"Payment Error: {e}")
+        # Crash Here = 500 is better than silent fail, but let's show the error
+        return f"<h1>Payment Error (Debug)</h1><p>{str(e)}</p>", 500
 
 @app.route('/payment/success/<int:booking_id>')
 def payment_success(booking_id):
