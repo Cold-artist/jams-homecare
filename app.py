@@ -494,6 +494,10 @@ def payment(booking_id):
 
 @app.route('/payment/verify', methods=['POST'])
 def payment_verify():
+    import traceback
+    # Use simple print for Render logs (bypassing potential FileHandler issues)
+    print("DEBUG: ENTERED payment_verify")
+    
     try:
         data = request.form
         booking_id = request.args.get('booking_id')
@@ -509,18 +513,23 @@ def payment_verify():
         
         if not is_simulation:
             # Verify Signature (Real Mode)
+            # Init Client Locally just to be safe
+            key_id = os.environ.get('RAZORPAY_KEY_ID', '').strip()
+            key_secret = os.environ.get('RAZORPAY_KEY_SECRET', '').strip()
+            client = razorpay.Client(auth=(key_id, key_secret))
+            
             params_dict = {
                 'razorpay_order_id': data['razorpay_order_id'],
                 'razorpay_payment_id': data['razorpay_payment_id'],
                 'razorpay_signature': data['razorpay_signature']
             }
-            razorpay_client.utility.verify_payment_signature(params_dict)
+            client.utility.verify_payment_signature(params_dict)
         
         # --- SUCCESS PATH ---
         booking.status = 'confirmed'
         booking.payment_method = 'online_paid'
         db.session.commit()
-        app.logger.info(f"Booking {booking.id} Confirmed & Paid: {data['razorpay_payment_id']}")
+        print(f"SUCCESS: Booking {booking.id} Confirmed & Paid: {data['razorpay_payment_id']}")
 
         # --- PREPARE EMAIL CONTENT ---
         # Prepare WhatsApp message for easier contact (kept for context, though unused here)
@@ -555,7 +564,7 @@ Jams Homecare
                  if not email_sent:
                      flash('Payment Confirmed, but Email Failed. Check /test-email for details.', 'warning')
             except Exception as e:
-                 app.logger.error(f"CRITICAL EMAIL FAIL: {e}")
+                 print(f"CRITICAL EMAIL FAIL: {e}")
                  # Don't crash payment success for email failure
                  flash(f"Payment Confirmed. Email Error: {str(e)}", 'warning')
 
@@ -567,32 +576,38 @@ Jams Homecare
         return redirect(url_for('payment_success', booking_id=booking.id))
         
     except razorpay.errors.SignatureVerificationError:
-        app.logger.error("Payment Signature Verification Failed!")
+        print("Payment Signature Verification Failed!")
         flash('Payment Failed. Please try again.', 'danger')
         return redirect(url_for('dashboard'))
     except Exception as e:
-        app.logger.error(f"Payment Error: {e}")
-        # Crash Here = 500 is better than silent fail, but let's show the error
-        return f"<h1>Payment Error (Debug)</h1><p>{str(e)}</p>", 500
+        print(f"FATAL PAYMENT ERROR: {e}")
+        # Crash Here = RETURN 200 OK with Error Text to bypass Server 500 Page
+        # This is the "Crash Trap"
+        return f"<h1>Fatal Application Error (Diagnostic)</h1><pre>{traceback.format_exc()}</pre>", 200
 
 @app.route('/payment/success/<int:booking_id>')
 def payment_success(booking_id):
-    booking = Booking.query.get_or_404(booking_id)
-    # Security: Only show if confirmed (prevent peeking)
-    if booking.status != 'confirmed':
-        flash("This booking is not confirmed.", "warning")
-        return redirect(url_for('home'))
+    import traceback
+    try:
+        booking = Booking.query.get_or_404(booking_id)
+        # Security: Only show if confirmed (prevent peeking)
+        if booking.status != 'confirmed':
+            flash("This booking is not confirmed.", "warning")
+            return redirect(url_for('home'))
+            
+        service_names = {
+            'medical_care': 'Medical Home Services',
+            'elderly_care': 'Elderly & Bedridden Care',
+            'sample_collection': 'Home Sample Collection',
+            'medicine_delivery': 'Medicine Delivery & Support'
+        }
         
-    service_names = {
-        'medical_care': 'Medical Home Services',
-        'elderly_care': 'Elderly & Bedridden Care',
-        'sample_collection': 'Home Sample Collection',
-        'medicine_delivery': 'Medicine Delivery & Support'
-    }
-    
-    return render_template('payment_success.html',
-                         booking=booking,
-                         service_name=service_names.get(booking.service_type, booking.service_type))
+        return render_template('payment_success.html',
+                             booking=booking,
+                             service_name=service_names.get(booking.service_type, booking.service_type))
+    except Exception as e:
+        print(f"FATAL SUCCESS PAGE ERROR: {e}")
+        return f"<h1>Fatal Success Page Error (Diagnostic)</h1><pre>{traceback.format_exc()}</pre>", 200
 
 @app.route('/lab-collection')
 def lab_collection():
