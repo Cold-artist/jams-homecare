@@ -1414,6 +1414,70 @@ def init_data():
 #     app.logger.error(f"CRITICAL: Startup Seeding Failed: {e}")
 #     print(f"CRITICAL: Startup Seeding Failed: {e}") # Ensure it hits stdout
 
+# --- EMAIL DIAGNOSTIC TOOL (V2) ---
+@app.route('/test-email')
+def test_email_route():
+    import smtplib
+    import socket
+    import ssl
+    
+    user = app.config.get('MAIL_USERNAME')
+    pwd = app.config.get('MAIL_PASSWORD')
+    TIMEOUT = 5
+
+    results = []
+    results.append("<h1>🚀 Email Diagnostic Report v2</h1>")
+    results.append(f"Config: User={user}, Password={'SET' if pwd else 'MISSING'}")
+    
+    # 1. DNS Resolution
+    try:
+        ip = socket.gethostbyname('smtp.gmail.com')
+        results.append(f"✅ DNS Resolved: {ip}")
+    except Exception as e:
+        results.append(f"❌ DNS Failed: {e}")
+        return "<br>".join(results)
+
+    # 2. Try Port 587 (TLS)
+    results.append("<br>Attempting Port 587 (Standard TLS)...")
+    try:
+        with smtplib.SMTP('smtp.gmail.com', 587, timeout=TIMEOUT) as s:
+            s.starttls()
+            s.login(user, pwd)
+            results.append("✅ Port 587 Success! (Authentication OK)")
+    except Exception as e:
+        err = str(e)
+        if "Network is unreachable" in err:
+             results.append(f"⚠️ Port 587 BLOCKED by Firewall (Network Unreachable)")
+        else:
+             results.append(f"⚠️ Port 587 Failed: {err}")
+
+    # 3. Try Port 465 (SSL)
+    results.append("<br>Attempting Port 465 (Secure SSL)...")
+    try:
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=TIMEOUT) as s:
+            s.login(user, pwd)
+            results.append("✅ Port 465 Success! (Authentication OK)")
+    except Exception as e:
+        err = str(e)
+        if "Network is unreachable" in err:
+             results.append(f"⚠️ Port 465 BLOCKED by Firewall (Network Unreachable)")
+        else:
+             results.append(f"⚠️ Port 465 Failed: {err}")
+
+    # 4. Try Port 2525 (Alternative TLS)
+    results.append("<br>Attempting Port 2525 (Alternative TLS)...")
+    try:
+        with smtplib.SMTP('smtp.gmail.com', 2525, timeout=TIMEOUT) as s:
+            s.starttls()
+            s.login(user, pwd)
+            results.append("✅ Port 2525 Success! (Use THIS Port!)")
+    except Exception as e:
+        results.append(f"⚠️ Port 2525 Failed: {e}")
+
+    return "<br>".join(results)
+
+
 # --- SELF-HEALING DATABASE ---
 # Critical for Render ephemeral storage: Ensure DB exists on first request
 db_initialized = False
