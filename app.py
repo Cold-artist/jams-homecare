@@ -62,6 +62,7 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587  # TLS (Standard) prevents timeouts
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USE_TLS'] = True # Enable TLS for 587
+app.config['MAIL_TIMEOUT'] = 10 # Force Timeout in 10s (prevents hanging)
 
 # Robust Env Loader (Case-Insensitive Scan)
 def get_env_robust(key_fragment):
