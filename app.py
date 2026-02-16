@@ -495,23 +495,28 @@ def payment(booking_id):
 @app.route('/payment/verify', methods=['POST'])
 @app.route('/payment/verify', methods=['POST'])
 def payment_verify():
-    data = request.form
-    booking_id = request.args.get('booking_id') # Passed via URL query param
-    
-    if not booking_id:
-        app.logger.error("Payment Verify: Missing Booking ID")
-        flash("System Error: Booking ID not found.", 'danger')
-        return redirect(url_for('home'))
-
-    booking = Booking.query.get_or_404(booking_id)
-
+    import traceback
     try:
+        data = request.form
+        booking_id = request.args.get('booking_id')
+        
+        if not booking_id:
+            return "Error: Missing booking_id in URL", 400
+
+        # Create localized Service Names map
+        service_names = {
+            'medical_care': 'Medical Home Services',
+            'elderly_care': 'Elderly & Bedridden Care',
+            'sample_collection': 'Home Sample Collection',
+            'medicine_delivery': 'Medicine Delivery & Support'
+        }
+
+        booking = Booking.query.get_or_404(booking_id)
+
         # Handle MOCK/SIMULATION Mode
         is_simulation = data.get('razorpay_order_id', '').startswith('order_mock_')
         
-        if is_simulation:
-            app.logger.info(f"Simulation Payment Verified: {data['razorpay_order_id']}")
-        else:
+        if not is_simulation:
             # Verify Signature (Real Mode)
             params_dict = {
                 'razorpay_order_id': data['razorpay_order_id'],
@@ -524,19 +529,10 @@ def payment_verify():
         booking.status = 'confirmed'
         booking.payment_method = 'online_paid'
         db.session.commit()
-        
         app.logger.info(f"Booking {booking.id} Confirmed & Paid: {data['razorpay_payment_id']}")
 
         # --- PREPARE EMAIL CONTENT ---
-        # Prepare WhatsApp message for easier contact (kept for context, though unused here)
-        service_names = {
-            'medical_care': 'Medical Home Services',
-            'elderly_care': 'Elderly & Bedridden Care',
-            'sample_collection': 'Home Sample Collection',
-            'medicine_delivery': 'Medicine Delivery & Support'
-        }
         service_display = service_names.get(booking.service_type, booking.service_type)
-        
         paid_body = f"""Dear {booking.patient_name},
 
 Payment Successful! Your booking is confirmed.
@@ -559,10 +555,9 @@ Jams Homecare
                  email_sent = send_email_notification(f"Payment Received - #HHC{booking.id:04d}", paid_body, [booking.email], sync=True)
                  if not email_sent:
                      flash('Payment Confirmed, but Email Failed. Check /test-email for details.', 'warning')
-            except Exception as e:
-                 app.logger.error(f"CRITICAL EMAIL FAIL: {e}")
-                 # Don't crash payment success for email failure
-                 flash(f"Payment Confirmed. Email Error: {str(e)}", 'warning')
+            except Exception as email_err:
+                 app.logger.error(f"CRITICAL EMAIL FAIL: {email_err}")
+                 flash(f"Payment Confirmed. Email Error: {str(email_err)}", 'warning')
 
         if is_simulation:
             flash('Payment Successful! (Simulation Mode)', 'success')
@@ -573,12 +568,12 @@ Jams Homecare
         
     except razorpay.errors.SignatureVerificationError:
         app.logger.error("Payment Signature Verification Failed!")
-        flash('Payment Failed. Please try again.', 'danger')
+        flash('Payment Failed. Signature Invalid.', 'danger')
         return redirect(url_for('dashboard'))
     except Exception as e:
-        app.logger.error(f"Payment Error: {e}")
-        # Crash Here = 500 is better than silent fail, but let's show the error
-        return f"<h1>Payment Error (Debug)</h1><p>{str(e)}</p>", 500
+        # ABSOLUTE CRASH CATCHER
+        app.logger.error(f"Payment Verify Fatal Crash: {e}")
+        return f"<h1>Fatal Application Error</h1><pre>{traceback.format_exc()}</pre>", 500
 
 @app.route('/payment/success/<int:booking_id>')
 def payment_success(booking_id):
