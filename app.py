@@ -492,12 +492,27 @@ def payment(booking_id):
                          order=order,
                          key_id=RAZORPAY_KEY_ID)
 
-@app.route('/payment/verify', methods=['POST'])
+# --- GLOBAL ERROR HANDLERS ---
+@app.errorhandler(500)
+def internal_error(error):
+    import traceback
+    # Catch ALL 500 Errors (Framework Level)
+    print(f"GLOBAL 500 CAUGHT: {traceback.format_exc()}")
+    return f"<h1>Global Application Crash (500)</h1><pre>{traceback.format_exc()}</pre>", 200
+
+@app.errorhandler(405)
+def method_not_allowed(error):
+    return "<h1>Method Not Allowed (405) - Provide POST Data</h1>", 200
+
+@app.route('/payment/verify', methods=['GET', 'POST'])
 def payment_verify():
     import traceback
     # Use simple print for Render logs (bypassing potential FileHandler issues)
     print("DEBUG: ENTERED payment_verify")
     
+    if request.method == 'GET':
+        return "<h1>Payment Verify Route is Active (GET)</h1><p>Waiting for Razorpay POST...</p>", 200
+
     try:
         data = request.form
         booking_id = request.args.get('booking_id')
