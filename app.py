@@ -861,60 +861,63 @@ def debug_config():
 
 @app.route('/test-email')
 def test_email():
-    """Diagnose connectivity to Gmail (Try both TLS/587 and SSL/465)."""
-    import smtplib
-    import ssl
-    import socket
+    """Fail-Safe Diagnostic for Render (Prevents Timeout/Blank Page)."""
+    import smtplib, socket, ssl
     
-    recipient = request.args.get('to', app.config.get('MAIL_USERNAME'))
-    username = app.config.get('MAIL_USERNAME')
-    password = app.config.get('MAIL_PASSWORD')
+    # 2-Second Timeout: Forces page to load even if network is blocked
+    TIMEOUT = 2 
     
-    if not username or not password:
-        return "<h1>Error: Missing Config</h1><p>MAIL_USERNAME or MAIL_PASSWORD is not set in Render.</p>"
+    username = app.config.get('MAIL_USERNAME', 'MISSING')
+    password_status = 'SET' if app.config.get('MAIL_PASSWORD') else 'MISSING'
+    
+    report = [
+        "<html><head><title>Email Diagnostic</title></head><body style='font-family:sans-serif; padding:2rem;'>",
+        "<h1>🚀 Email Diagnostic Report</h1>",
+        f"<p><strong>Config:</strong> User={username}, Password={password_status}</p>",
+        "<hr>"
+    ]
 
-    report = []
-    success = False
-
-    # 1. Try TLS (Port 587)
+    # Test 1: DNS Resolution (Is Google reachable?)
     try:
-        report.append("<h3>Attempt 1: TLS (Port 587)</h3>")
-        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10) # 10s Timeout prevents blank page
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login(username, password)
-        
-        msg = f"Subject: Test Email (TLS)\n\nThis confirms Port 587 is working!"
-        server.sendmail(username, recipient, msg)
-        server.quit()
-        report.append("<p style='color:green'>✅ Success! Email sent via TLS.</p>")
-        success = True
+        ip = socket.gethostbyname('smtp.gmail.com')
+        report.append(f"<p>✅ <strong>DNS Resolved:</strong> {ip}</p>")
     except Exception as e:
-        report.append(f"<p style='color:red'>❌ Failed: {str(e)}</p>")
+        report.append(f"<p>❌ <strong>DNS Failed:</strong> {str(e)}</p>")
 
-    # 2. Try SSL (Port 465) if TLS failed
-    if not success:
-        try:
-            report.append("<h3>Attempt 2: SSL (Port 465)</h3>")
-            context = ssl.create_default_context()
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context, timeout=10) as server:
-                server.login(username, password)
-                msg = f"Subject: Test Email (SSL)\n\nThis confirms Port 465 is working!"
-                server.sendmail(username, recipient, msg)
-                report.append("<p style='color:green'>✅ Success! Email sent via SSL.</p>")
-                success = True
-        except Exception as e:
-            report.append(f"<p style='color:red'>❌ Failed: {str(e)}</p>")
+    # Test 2: Port 587 (TLS)
+    try:
+        report.append(f"<p>Attempting Port 587 (Standard TLS)...</p>")
+        with smtplib.SMTP('smtp.gmail.com', 587, timeout=TIMEOUT) as s:
+            s.ehlo()
+            s.starttls()
+            s.ehlo()
+            s.login(username, app.config.get('MAIL_PASSWORD'))
+            s.sendmail(username, username, f"Subject: Test 587\n\nSuccess")
+        report.append("<h3 style='color:green'>✅ Port 587 SUCCESS! (Email Sent)</h3>")
+    except Exception as e:
+        err = str(e)
+        if "Authentication" in err or "(535" in err:
+             report.append(f"<h3 style='color:red'>❌ Authentication Failed (Check App Password)</h3>")
+        else:
+             report.append(f"<p style='color:orange'>⚠️ Port 587 Failed: {err}</p>")
 
-    return f"""
-    <h1>Email Diagnostic Report</h1>
-    <p><strong>Username:</strong> {username}</p>
-    <hr>
-    {''.join(report)}
-    <hr>
-    <p><small>If you see "AuthenticationError", check your App Password.</small></p>
-    """
+    # Test 3: Port 465 (SSL)
+    try:
+        report.append(f"<p>Attempting Port 465 (Secure SSL)...</p>")
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=TIMEOUT) as s:
+            s.login(username, app.config.get('MAIL_PASSWORD'))
+            s.sendmail(username, username, f"Subject: Test 465\n\nSuccess")
+        report.append("<h3 style='color:green'>✅ Port 465 SUCCESS! (Email Sent)</h3>")
+    except Exception as e:
+        err = str(e)
+        if "Authentication" in err or "(535" in err:
+             report.append(f"<h3 style='color:red'>❌ Authentication Failed (Check App Password)</h3>")
+        else:
+             report.append(f"<p style='color:orange'>⚠️ Port 465 Failed: {err}</p>")
+
+    report.append("</body></html>")
+    return "".join(report)
 
 @app.route('/health_check')
 def health_check():
