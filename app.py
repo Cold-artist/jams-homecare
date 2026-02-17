@@ -28,6 +28,20 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['PERMANENT_SESSION_LIFETIME'] = 1800
 
+# --- DATABASE CONFIGURATION (MOVED UP FOR DEBUG) ---
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))
+os.makedirs(os.path.join(basedir, 'instance'), exist_ok=True)
+
+if os.environ.get('DATABASE_URL'):
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace("postgres://", "postgresql://", 1)
+else:
+    db_path = os.path.join(basedir, 'instance', 'homehealthcare_v2.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
 @app.route('/debug-db')
 def debug_db():
     """Diagnose DB Connection Errors on Render (Top-Level)."""
@@ -119,22 +133,9 @@ app.config['SENDGRID_API_KEY'] = os.environ.get('SENDGRID_API_KEY', 'SG._Wt3GRV4
 
 mail = Mail(app)
 
-# Database Configuration
-basedir = os.path.abspath(os.path.dirname(__file__))
-# Critical for Render: Ensure 'instance' folder exists before SQLite tries to write
-os.makedirs(os.path.join(basedir, 'instance'), exist_ok=True)
-
-# Production DB Support (PostgreSQL) with SQLite Fallback
-if os.environ.get('DATABASE_URL'):
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace("postgres://", "postgresql://", 1)
-else:
-    db_path = os.path.join(basedir, 'instance', 'homehealthcare_v2.db')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
-
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
-db = SQLAlchemy(app)
+migrate = Migrate(app, db) # Initialize Flask-Migrate
 migrate = Migrate(app, db) # Initialize Flask-Migrate
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
