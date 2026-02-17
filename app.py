@@ -781,25 +781,36 @@ def register():
         return redirect(url_for('home'))
     form = RegisterForm()
     if form.validate_on_submit():
-        if User.query.filter_by(email=form.email.data).first():
-            flash('Email already registered.', 'danger')
-            return redirect(url_for('register'))
-        
-        user = User(
-            name=form.name.data,
-            email=form.email.data,
-            mobile=form.mobile.data
-        )
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        
-        # Auto login with Persistence
-        login_user(user, remember=True)
-        session.permanent = True
-        flash('Account created successfully! Welcome to Jams Homecare.', 'success')
-        return redirect(url_for('dashboard'))
-        
+        try:
+            # 1. Check for duplicates
+            if User.query.filter_by(email=form.email.data).first():
+                flash('Email already registered.', 'danger')
+                return redirect(url_for('register'))
+            
+            # 2. Create User
+            user = User(
+                name=form.name.data,
+                email=form.email.data,
+                mobile=form.mobile.data
+            )
+            user.set_password(form.password.data)
+            
+            # 3. Commit to DB
+            db.session.add(user)
+            db.session.commit()
+            
+            # 4. Login
+            login_user(user, remember=True)
+            session.permanent = True
+            
+            flash('Account created successfully! Welcome to Jams Homecare.', 'success')
+            return redirect(url_for('dashboard'))
+            
+        except Exception as e:
+            db.session.rollback() # Important: Rollback on error
+            app.logger.error(f"Signup Error: {e}")
+            flash(f"Signup Failed (Internal Error): {str(e)}", 'danger')
+
     return render_template('register.html', form=form)
 
 class AdminLoginForm(FlaskForm):
