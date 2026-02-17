@@ -1415,11 +1415,18 @@ def initialize_database():
 @app.route('/fix-db')
 def manual_db_fix():
     try:
-        from fix_schema import fix_password_hash_length
-        fix_password_hash_length()
+        from sqlalchemy import text
+        # Direct SQL Fix - No external file dependency
+        sql = text('ALTER TABLE "user" ALTER COLUMN password_hash TYPE VARCHAR(256);')
+        with db.engine.connect() as connection:
+             connection.execute(sql)
+             connection.commit()
+             
+        app.logger.info("DB Fix: Password Hash column resized to 256.")
         return "<h1>Database Fixed!</h1><p>Password Hash column size increased to 256.</p><a href='/register'>Try Signing Up Again</a>"
     except Exception as e:
-        return f"Fix Failed: {e}"
+        app.logger.error(f"DB Fix Failed: {e}")
+        return f"<h1>Fix Failed</h1><p>{e}</p>"
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
