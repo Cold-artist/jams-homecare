@@ -16,8 +16,8 @@ import logging
 from logging.handlers import RotatingFileHandler
 import razorpay
 import json
-import json
-import urllib.request # Use Standard Lib instead of 'requests' for Zero-Dependency reliability
+import urllib.request
+import urllib.error # CRITICAL: Required for catching HTTPError
 import hmac
 import hashlib
 from sqlalchemy import func, inspect # Critical for db_recovery
