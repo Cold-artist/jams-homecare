@@ -1456,17 +1456,45 @@ def init_data():
 def test_email_route():
     import socket
     
-    # 1. Trigger SendGrid API Call
-    recipient = "jamshomecare@gmail.com" # Send to self
+    # Direct SendGrid API Call for Debugging (Bypassing Helper)
+    recipient = "jamshomecare@gmail.com"
     subject = "SendGrid Test - Jams Homecare"
-    body = "If you see this, SendGrid is WORKING! The firewall is bypassed."
+    body = "If you see this, SendGrid is WORKING! (Direct Mode)"
     
-    success = send_async_email(app, subject, body, [recipient])
+    sg_key = app.config.get('SENDGRID_API_KEY')
+    url = "https://api.sendgrid.com/v3/mail/send"
     
-    if success:
-        return f"<h1>✅ SendGrid Success! (V3.3 - Optimized)</h1><p>Email sent to {recipient}. Check your Inbox/Spam.</p><p>You can now enable confirmations for everyone.</p>"
-    else:
-        return f"<h1>❌ SendGrid Failed (V3.3).</h1><p>Check the logs for 'SendGrid Failed' or 'Exception'.</p>"
+    if not sg_key or not sg_key.startswith("SG."):
+        return f"<h1>❌ Config Error</h1><p>SendGrid API Key is missing or invalid: {sg_key}</p>"
+
+    # Payload construction
+    payload = {
+        "personalizations": [{"to": [{"email": recipient}]}],
+        "from": {"email": "jamshomecare@gmail.com", "name": "Jams Homecare"},
+        "subject": subject,
+        "content": [{"type": "text/plain", "value": body}]
+    }
+    
+    try:
+        data = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(url, data=data, method='POST')
+        req.add_header('Authorization', f'Bearer {sg_key}')
+        req.add_header('Content-Type', 'application/json')
+        
+        with urllib.request.urlopen(req, timeout=10) as response:
+             status = response.status
+             resp_body = response.read().decode('utf-8')
+             if 200 <= status < 300:
+                 return f"<h1>✅ SendGrid Success! (Direct)</h1><p>Status: {status}</p><p>Response: {resp_body}</p>"
+             else:
+                 return f"<h1>❌ SendGrid Failed (Direct).</h1><p>Status: {status}</p><p>Response: {resp_body}</p>"
+                 
+    except urllib.error.HTTPError as e:
+        err_body = e.read().decode('utf-8')
+        return f"<h1>❌ SendGrid HTTP Error</h1><p>Code: {e.code}</p><pre>{err_body}</pre>"
+    except Exception as e:
+        import traceback
+        return f"<h1>❌ SendGrid Exception</h1><pre>{traceback.format_exc()}</pre>"
 
 
 # --- SELF-HEALING DATABASE ---
