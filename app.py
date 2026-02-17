@@ -1451,53 +1451,6 @@ def init_data():
 #     app.logger.error(f"CRITICAL: Startup Seeding Failed: {e}")
 #     print(f"CRITICAL: Startup Seeding Failed: {e}") # Ensure it hits stdout
 
-# --- EMAIL DIAGNOSTIC TOOL (V5.0 - NEW ROUTE) ---
-@app.route('/debug-mail')
-def debug_mail_route():
-    import json
-    import urllib.request
-    import urllib.error
-    
-    # 1. Configuration Check
-    sg_key = app.config.get('SENDGRID_API_KEY')
-    if not sg_key or not sg_key.startswith("SG."):
-        return f"<h1>❌ Config Error (V5.0)</h1><p>API Key Invalid: {sg_key}</p>"
-
-    # 2. Direct SendGrid API Call
-    url = "https://api.sendgrid.com/v3/mail/send"
-    recipient = "jamshomecare@gmail.com"
-    subject = "V5.0 Critical Test - Jams Homecare"
-    body = "If you see this, V5.0 is LIVE and SendGrid is WORKING! (New Route)"
-
-    payload = {
-        "personalizations": [{"to": [{"email": recipient}]}],
-        "from": {"email": "jamshomecare@gmail.com", "name": "Jams Homecare"},
-        "subject": subject,
-        "content": [{"type": "text/plain", "value": body}]
-    }
-    
-    try:
-        data = json.dumps(payload).encode('utf-8')
-        req = urllib.request.Request(url, data=data, method='POST')
-        req.add_header('Authorization', f'Bearer {sg_key}')
-        req.add_header('Content-Type', 'application/json')
-        
-        with urllib.request.urlopen(req, timeout=10) as response:
-             status = response.status
-             resp_body = response.read().decode('utf-8')
-             if 200 <= status < 300:
-                 return f"<h1>✅ SendGrid Success! (V5.0)</h1><p>Status: {status}</p><p>Response: {resp_body}</p>"
-             else:
-                 return f"<h1>❌ SendGrid Failed (V5.0).</h1><p>Status: {status}</p><p>Response: {resp_body}</p>"
-                 
-    except urllib.error.HTTPError as e:
-        err_body = e.read().decode('utf-8')
-        return f"<h1>❌ SendGrid HTTP Error (V5.0)</h1><p>Code: {e.code}</p><pre>{err_body}</pre>"
-    except Exception as e:
-        import traceback
-        return f"<h1>❌ SendGrid Exception (V5.0)</h1><pre>{traceback.format_exc()}</pre>"
-
-
 # --- SELF-HEALING DATABASE ---
 # Critical for Render ephemeral storage: Ensure DB exists on first request
 db_initialized = False
