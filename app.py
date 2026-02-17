@@ -1464,9 +1464,9 @@ def test_email_route():
     success = send_async_email(app, subject, body, [recipient])
     
     if success:
-        return f"<h1>✅ SendGrid Success! (V3.2 - urllib)</h1><p>Email sent to {recipient}. Check your Inbox/Spam.</p><p>You can now enable confirmations for everyone.</p>"
+        return f"<h1>✅ SendGrid Success! (V3.3 - Optimized)</h1><p>Email sent to {recipient}. Check your Inbox/Spam.</p><p>You can now enable confirmations for everyone.</p>"
     else:
-        return f"<h1>❌ SendGrid Failed (V3.2).</h1><p>Check the logs for 'SendGrid Failed' or 'Exception'.</p>"
+        return f"<h1>❌ SendGrid Failed (V3.3).</h1><p>Check the logs for 'SendGrid Failed' or 'Exception'.</p>"
 
 
 # --- SELF-HEALING DATABASE ---
