@@ -28,54 +28,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['PERMANENT_SESSION_LIFETIME'] = 1800
 
-# --- DATABASE CONFIGURATION (MOVED UP FOR DEBUG) ---
-import os
-basedir = os.path.abspath(os.path.dirname(__file__))
-os.makedirs(os.path.join(basedir, 'instance'), exist_ok=True)
-
-if os.environ.get('DATABASE_URL'):
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace("postgres://", "postgresql://", 1)
-else:
-    db_path = os.path.join(basedir, 'instance', 'homehealthcare_v2.db')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
-
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-
-@app.route('/debug-db')
-def debug_db():
-    """Diagnose DB Connection Errors on Render (Top-Level)."""
-    import os
-    try:
-        # 1. Check Config
-        uri = app.config.get('SQLALCHEMY_DATABASE_URI', 'MISSING')
-        masked_uri = uri.split('@')[1] if '@' in uri else uri[:10] + "..."
-        
-        info = [f"<h1>Database Diagnostic (V6.0)</h1>"]
-        info.append(f"<p><strong>URI Configured:</strong> {masked_uri}</p>")
-        
-        # 2. Test Connection
-        with db.engine.connect() as connection:
-            result = connection.execute(text("SELECT 1"))
-            info.append(f"<p style='color:green'>✅ Connection Successful (SELECT 1 returns {result.fetchone()})</p>")
-            
-        # 3. Check Tables
-        inspector = inspect(db.engine)
-        tables = inspector.get_table_names()
-        info.append(f"<p><strong>Tables Found:</strong> {tables}</p>")
-        
-        # 4. Check Tables Existence logic
-        if 'user' in tables or 'User' in tables:
-             count = User.query.count()
-             info.append(f"<p style='color:green'>✅ User Table Accessible (Count: {count})</p>")
-        else:
-             info.append(f"<p style='color:red'>❌ User Table MISSING (Should auto-create)</p>")
-             
-        return "".join(info)
-        
-    except Exception as e:
-        return f"<h1>❌ Database Error (V6.0)</h1><pre>{str(e)}</pre>"
-
 # Login Manager Setup
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -133,9 +85,22 @@ app.config['SENDGRID_API_KEY'] = os.environ.get('SENDGRID_API_KEY', 'SG._Wt3GRV4
 
 mail = Mail(app)
 
+# Database Configuration
+basedir = os.path.abspath(os.path.dirname(__file__))
+# Critical for Render: Ensure 'instance' folder exists before SQLite tries to write
+os.makedirs(os.path.join(basedir, 'instance'), exist_ok=True)
+
+# Production DB Support (PostgreSQL) with SQLite Fallback
+if os.environ.get('DATABASE_URL'):
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL').replace("postgres://", "postgresql://", 1)
+else:
+    db_path = os.path.join(basedir, 'instance', 'homehealthcare_v2.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = 'uploads'
 
-migrate = Migrate(app, db) # Initialize Flask-Migrate
+db = SQLAlchemy(app)
 migrate = Migrate(app, db) # Initialize Flask-Migrate
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -1439,6 +1404,40 @@ def init_data():
 @app.route('/test-email')
 def cleanup_redirect():
     return f"<h1>✅ System Active</h1><p>Debug tools have been removed for security.</p><p><a href='/'>Go to Homepage</a></p>"
+
+@app.route('/debug-db')
+def debug_db():
+    """Diagnose DB Connection Errors on Render (Restored)."""
+    import os
+    try:
+        # 1. Check Config
+        uri = app.config.get('SQLALCHEMY_DATABASE_URI', 'MISSING')
+        masked_uri = uri.split('@')[1] if '@' in uri else uri[:10] + "..."
+        
+        info = [f"<h1>Database Diagnostic (V6.1-SAFE)</h1>"]
+        info.append(f"<p><strong>URI Configured:</strong> {masked_uri}</p>")
+        
+        # 2. Test Connection
+        with db.engine.connect() as connection:
+            result = connection.execute(text("SELECT 1"))
+            info.append(f"<p style='color:green'>✅ Connection Successful (SELECT 1 returns {result.fetchone()})</p>")
+            
+        # 3. Check Tables
+        inspector = inspect(db.engine)
+        tables = inspector.get_table_names()
+        info.append(f"<p><strong>Tables Found:</strong> {tables}</p>")
+        
+        # 4. Check Tables Existence logic
+        if 'user' in tables or 'User' in tables:
+             count = User.query.count()
+             info.append(f"<p style='color:green'>✅ User Table Accessible (Count: {count})</p>")
+        else:
+             info.append(f"<p style='color:red'>❌ User Table MISSING (Should auto-create)</p>")
+             
+        return "".join(info)
+        
+    except Exception as e:
+        return f"<h1>❌ Database Error (V6.1)</h1><pre>{str(e)}</pre>"
 
 
 
