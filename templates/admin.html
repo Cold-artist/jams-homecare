@@ -6,6 +6,17 @@
 <section style="padding: 8rem 0 6rem; background: #f8fafc; min-height: 100vh;">
     <div class="container">
 
+        {% if is_sqlite %}
+        <div
+            style="background: #fff3cd; color: #856404; padding: 1rem; margin-bottom: 2rem; border: 1px solid #ffeeba; border-radius: 8px;">
+            <p style="margin: 0; font-weight: bold;">⚠️ CRITICAL: DATA LOSS RISK (Ephemeral Database)</p>
+            <p style="margin: 0.5rem 0;">You are using a temporary SQLite database. <strong>ALL DATA (Users, Bookings)
+                    WILL BE DELETED</strong> when the server restarts or deploys.</p>
+            <p style="margin: 0;"><strong>Fix:</strong> Connect a PostgreSQL database in Render to save data
+                permanently.</p>
+        </div>
+        {% endif %}
+
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
             <div>
                 <span class="badge">Internal Use Only</span>

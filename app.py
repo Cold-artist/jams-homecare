@@ -810,8 +810,9 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        # Auto login
-        login_user(user)
+        # Auto login with Persistence
+        login_user(user, remember=True)
+        session.permanent = True
         flash('Account created successfully! Welcome to Jams Homecare.', 'success')
         return redirect(url_for('dashboard'))
         
@@ -832,7 +833,8 @@ def login():
         # User login only
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
-            login_user(user)
+            login_user(user, remember=True)
+            session.permanent = True
             flash('Logged in successfully.', 'success')
             next_page = request.args.get('next')
             return redirect(next_page or url_for('dashboard'))
@@ -927,65 +929,7 @@ def debug_config():
     <p><small>If "Keys Found" is empty, Render has NOT loaded any variables. Try Manual Deploy or Restart.</small></p>
     """
 
-@app.route('/test-email')
-def test_email():
-    """Fail-Safe Diagnostic for Render (Prevents Timeout/Blank Page)."""
-    import smtplib, socket, ssl
-    
-    # 2-Second Timeout: Forces page to load even if network is blocked
-    TIMEOUT = 2 
-    
-    username = app.config.get('MAIL_USERNAME', 'MISSING')
-    password_status = 'SET' if app.config.get('MAIL_PASSWORD') else 'MISSING'
-    
-    report = [
-        "<html><head><title>Email Diagnostic</title></head><body style='font-family:sans-serif; padding:2rem;'>",
-        "<h1>🚀 Email Diagnostic Report</h1>",
-        f"<p><strong>Config:</strong> User={username}, Password={password_status}</p>",
-        "<hr>"
-    ]
-
-    # Test 1: DNS Resolution (Is Google reachable?)
-    try:
-        ip = socket.gethostbyname('smtp.gmail.com')
-        report.append(f"<p>✅ <strong>DNS Resolved:</strong> {ip}</p>")
-    except Exception as e:
-        report.append(f"<p>❌ <strong>DNS Failed:</strong> {str(e)}</p>")
-
-    # Test 2: Port 587 (TLS)
-    try:
-        report.append(f"<p>Attempting Port 587 (Standard TLS)...</p>")
-        with smtplib.SMTP('smtp.gmail.com', 587, timeout=TIMEOUT) as s:
-            s.ehlo()
-            s.starttls()
-            s.ehlo()
-            s.login(username, app.config.get('MAIL_PASSWORD'))
-            s.sendmail(username, username, f"Subject: Test 587\n\nSuccess")
-        report.append("<h3 style='color:green'>✅ Port 587 SUCCESS! (Email Sent)</h3>")
-    except Exception as e:
-        err = str(e)
-        if "Authentication" in err or "(535" in err:
-             report.append(f"<h3 style='color:red'>❌ Authentication Failed (Check App Password)</h3>")
-        else:
-             report.append(f"<p style='color:orange'>⚠️ Port 587 Failed: {err}</p>")
-
-    # Test 3: Port 465 (SSL)
-    try:
-        report.append(f"<p>Attempting Port 465 (Secure SSL)...</p>")
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context, timeout=TIMEOUT) as s:
-            s.login(username, app.config.get('MAIL_PASSWORD'))
-            s.sendmail(username, username, f"Subject: Test 465\n\nSuccess")
-        report.append("<h3 style='color:green'>✅ Port 465 SUCCESS! (Email Sent)</h3>")
-    except Exception as e:
-        err = str(e)
-        if "Authentication" in err or "(535" in err:
-             report.append(f"<h3 style='color:red'>❌ Authentication Failed (Check App Password)</h3>")
-        else:
-             report.append(f"<p style='color:orange'>⚠️ Port 465 Failed: {err}</p>")
-
-    report.append("</body></html>")
-    return "".join(report)
+    return status
 
 @app.route('/health_check')
 def health_check():
@@ -1068,7 +1012,11 @@ def admin_dashboard():
     
     bookings = Booking.query.order_by(Booking.created_at.desc()).all()
     inquiries = Inquiry.query.order_by(Inquiry.created_at.desc()).all()
-    return render_template('admin.html', bookings=bookings, inquiries=inquiries)
+    
+    # Check for SQLite (Ephemeral DB Risk)
+    is_sqlite = app.config.get('SQLALCHEMY_DATABASE_URI', '').startswith('sqlite:')
+    
+    return render_template('admin.html', bookings=bookings, inquiries=inquiries, is_sqlite=is_sqlite)
 
 @app.route('/admin/medicines')
 def admin_medicines():
