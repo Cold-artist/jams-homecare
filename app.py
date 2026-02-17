@@ -170,7 +170,7 @@ class Medicine(db.Model):
     is_active = db.Column(db.Boolean, default=True)
 
 # Admin Contact Details
-ADMIN_EMAIL = 'jamshomecare@gmail.com'
+ADMIN_EMAIL = 'jamshomecare+admin@gmail.com' # Use Alias to prevent "Self-Send" suppression in Gmail
 ADMIN_PHONES = ['9758928213']
 
 class Inquiry(db.Model):
