@@ -1414,26 +1414,21 @@ def initialize_database():
     global db_initialized
     if not db_initialized:
         try:
-            # Check if tables exist by inspecting the engine
-            inspector = inspect(db.engine)
-            if not inspector.has_table("lab_test"):
-                app.logger.info("First Request: Database empty. Seeding data...")
+            # Robust Check for Empty DB (Works on Postgres & SQLite)
+            # We try to access the User table. If it fails, we create tables.
+            try:
+                db.session.query(User).first()
+            except Exception:
+                app.logger.info("Database Not Found/Empty. Creating Tables...")
                 db.create_all()
                 seed_production_data()
-                
-                # CRITICAL: Run External Medicine Seeder (Overwrites default medicines with correct local images)
-                # DISABLED: Preventing Render Startup Timeout (User can seed via /init-data)
-                # try:
-                #     from seed_medicines import seed_medicines
-                #     seed_medicines()
-                #     app.logger.info("External Medicine Seeder: Success")
-                # except Exception as e:
-                #     app.logger.error(f"External Medicine Seeder Failed: {e}")
-
-                app.logger.info("Database Seeding Completed.")
+                app.logger.info("Database Created & Seeded Successfully.")
+            
             db_initialized = True
         except Exception as e:
-            app.logger.error(f"Database Initialization Failed: {e}")
+            app.logger.error(f"Critical DB Init Error: {e}")
+            # Do NOT swallow the error, let it print so we can debug if it persists
+            print(f"CRITICAL DB ERROR: {e}")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
