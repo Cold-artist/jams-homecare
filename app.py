@@ -1486,12 +1486,13 @@ def initialize_database():
                 seed_production_data()
                 
                 # CRITICAL: Run External Medicine Seeder (Overwrites default medicines with correct local images)
-                try:
-                    from seed_medicines import seed_medicines
-                    seed_medicines()
-                    app.logger.info("External Medicine Seeder: Success")
-                except Exception as e:
-                    app.logger.error(f"External Medicine Seeder Failed: {e}")
+                # DISABLED: Preventing Render Startup Timeout (User can seed via /init-data)
+                # try:
+                #     from seed_medicines import seed_medicines
+                #     seed_medicines()
+                #     app.logger.info("External Medicine Seeder: Success")
+                # except Exception as e:
+                #     app.logger.error(f"External Medicine Seeder Failed: {e}")
 
                 app.logger.info("Database Seeding Completed.")
             db_initialized = True

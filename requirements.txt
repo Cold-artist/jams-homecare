@@ -10,5 +10,4 @@ gunicorn
 werkzeug
 python-dotenv
 psycopg2-binary
-requests
-# Force Rebuild: Refresh Dependencies
+psycopg2-binary
