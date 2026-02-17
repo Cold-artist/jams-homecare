@@ -113,7 +113,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     mobile = db.Column(db.String(15), nullable=False)
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(256)) # Increased for scrypt hash
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     bookings = db.relationship('Booking', backref='user', lazy=True)
@@ -1411,6 +1411,15 @@ def initialize_database():
             app.logger.error(f"Critical DB Init Error: {e}")
             # Do NOT swallow the error, let it print so we can debug if it persists
             print(f"CRITICAL DB ERROR: {e}")
+
+@app.route('/fix-db')
+def manual_db_fix():
+    try:
+        from fix_schema import fix_password_hash_length
+        fix_password_hash_length()
+        return "<h1>Database Fixed!</h1><p>Password Hash column size increased to 256.</p><a href='/register'>Try Signing Up Again</a>"
+    except Exception as e:
+        return f"Fix Failed: {e}"
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
