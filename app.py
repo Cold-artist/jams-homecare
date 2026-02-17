@@ -27,6 +27,8 @@ app = Flask(__name__)
 # Security Key
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['PERMANENT_SESSION_LIFETIME'] = 1800
+app.config['PROPAGATE_EXCEPTIONS'] = True # CRITICAL: Show 500 errors, don't hide them
+print("DEBUG: App Loading...", flush=True)
 
 # Login Manager Setup
 login_manager = LoginManager()
