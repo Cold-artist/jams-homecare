@@ -1451,6 +1451,12 @@ def init_data():
 #     app.logger.error(f"CRITICAL: Startup Seeding Failed: {e}")
 #     print(f"CRITICAL: Startup Seeding Failed: {e}") # Ensure it hits stdout
 
+# --- DEPLOYMENT SUCCESS CHECK ---
+@app.route('/debug-mail')
+@app.route('/test-email')
+def cleanup_redirect():
+    return f"<h1>✅ System Active</h1><p>Debug tools have been removed for security.</p><p><a href='/'>Go to Homepage</a></p>"
+
 # --- SELF-HEALING DATABASE ---
 # Critical for Render ephemeral storage: Ensure DB exists on first request
 db_initialized = False
