@@ -16,7 +16,8 @@ import logging
 from logging.handlers import RotatingFileHandler
 import razorpay
 import json
-import requests # Added for SendGrid API
+import json
+import urllib.request # Use Standard Lib instead of 'requests' for Zero-Dependency reliability
 import hmac
 import hashlib
 from sqlalchemy import func, inspect # Critical for db_recovery
@@ -286,14 +287,9 @@ def send_async_email(app, subject, body, recipients):
         if sg_key and sg_key.startswith("SG."):
             try:
                 url = "https://api.sendgrid.com/v3/mail/send"
-                headers = {
-                    "Authorization": f"Bearer {sg_key}",
-                    "Content-Type": "application/json"
-                }
                 
-                # Handling Multiple Recipients
+                # Payload construction remains same
                 to_emails = [{"email": r} for r in recipients]
-                
                 payload = {
                     "personalizations": [{"to": to_emails}],
                     "from": {"email": sender, "name": "Jams Homecare"},
@@ -301,16 +297,20 @@ def send_async_email(app, subject, body, recipients):
                     "content": [{"type": "text/plain", "value": body}]
                 }
                 
-                response = requests.post(url, headers=headers, json=payload, timeout=10)
+                # URLLIB Implementation (dependency-free)
+                data = json.dumps(payload).encode('utf-8')
+                req = urllib.request.Request(url, data=data, method='POST')
+                req.add_header('Authorization', f'Bearer {sg_key}')
+                req.add_header('Content-Type', 'application/json')
                 
-                if 200 <= response.status_code < 300:
-                    app.logger.info(f"SendGrid Success: {response.status_code} to {recipients}")
-                    return True
-                else:
-                    app.logger.error(f"SendGrid Failed: {response.status_code} - {response.text}")
-                    # Don't return False yet, try fallback if possible (but unlikely on Render)
+                with urllib.request.urlopen(req, timeout=10) as response:
+                     if 200 <= response.status < 300:
+                         app.logger.info(f"SendGrid Success (urllib): {response.status} to {recipients}")
+                         return True
+            except urllib.error.HTTPError as e:
+                app.logger.error(f"SendGrid API Error: {e.code} - {e.read().decode('utf-8')}")
             except Exception as e:
-                app.logger.error(f"SendGrid Exception: {e}")
+                app.logger.error(f"SendGrid Exception (urllib): {e}")
 
         # Priority 2: Standard SMTP (Flask-Mail) - Fallback for LocalDev or if Key missing
         try:
@@ -1464,9 +1464,9 @@ def test_email_route():
     success = send_async_email(app, subject, body, [recipient])
     
     if success:
-        return f"<h1>✅ SendGrid Success! (V3.1)</h1><p>Email sent to {recipient}. Check your Inbox/Spam.</p><p>You can now enable confirmations for everyone.</p>"
+        return f"<h1>✅ SendGrid Success! (V3.2 - urllib)</h1><p>Email sent to {recipient}. Check your Inbox/Spam.</p><p>You can now enable confirmations for everyone.</p>"
     else:
-        return f"<h1>❌ SendGrid Failed (V3.1).</h1><p>Check the logs for 'SendGrid Failed' or 'Exception'.</p>"
+        return f"<h1>❌ SendGrid Failed (V3.2).</h1><p>Check the logs for 'SendGrid Failed' or 'Exception'.</p>"
 
 
 # --- SELF-HEALING DATABASE ---
