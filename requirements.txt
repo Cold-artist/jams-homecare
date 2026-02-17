@@ -11,3 +11,5 @@ werkzeug
 python-dotenv
 psycopg2-binary
 
+
+# Force Rebuild V6.0
