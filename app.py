@@ -1211,35 +1211,7 @@ def seed_production_data():
             if not Medicine.query.first():
                 app.logger.info("Seeding Medicines...")
                 
-                # Category Images
-                # High-Quality Official Brand Logos (Real Images via Clearbit)
-                images = {
-                    "Glucon-D": "https://logo.clearbit.com/glucond.com", 
-                    "Dabur": "https://logo.clearbit.com/dabur.com",
-                    "Himalaya": "https://logo.clearbit.com/himalayawellness.in",
-                    "Dettol": "https://logo.clearbit.com/reckitt.com", 
-                    "Zandu": "https://logo.clearbit.com/zanducare.com",
-                    "Little": "https://logo.clearbit.com/piramal.com", 
-                    "Nestle": "https://logo.clearbit.com/nestle.in", 
-                }
-
-                # Fallback Category Icons
-                cat_images = {
-                    "Energy": "https://i.imgur.com/8J5s2e6.png",
-                    "Honey": "https://logo.clearbit.com/dabur.com",
-                    "Digestion": "https://i.imgur.com/3q5Xy9C.png",
-                    "Baby": "https://logo.clearbit.com/piramal.com",
-                    "Immunity": "https://logo.clearbit.com/zanducare.com",
-                    "Syrup": "https://i.imgur.com/4q5Xy9C.png",
-                    "Ayurveda": "https://logo.clearbit.com/dabur.com",
-                    "Nutrition": "https://logo.clearbit.com/nestle.in",
-                    "Liver": "https://logo.clearbit.com/himalayawellness.in",
-                    "Tablet": "https://logo.clearbit.com/himalayawellness.in",
-                    "Ointment": "https://i.imgur.com/0X5Xy9C.png",
-                    "Hygiene": "https://logo.clearbit.com/reckitt.com",
-                    "Supplement": "https://i.imgur.com/bX5Xy9C.png"
-                }
-
+                # Simplified Seeding (User Request: Remove Image Logic)
                 medicines_data = [
                     # Energy
                     {"name": "Glucon-D Regular 125g", "price": 40, "cat": "Energy", "type": "OTC", "brand": "Glucon-D"},
@@ -1323,37 +1295,15 @@ def seed_production_data():
                     {"name": "Maxirich (10 Tablets)", "price": 129, "cat": "Supplement", "type": "Supplements", "brand": "Cipla"}
                 ]
 
-                # Bulk Add
+                # Clean Up: Simple Seeding without Image Logic
                 for m in medicines_data:
-                    # 1. Try Specific Manual Image (User Uploaded)
-                    img = None
-                    if m['name'] == "Glucon-D Regular 125g":
-                        img = "/static/images/medicines/glucond_reg125gm.jpg"
-                    elif m['name'] == "Dabur Honey 100g":
-                        img = "/static/images/medicines/honey100gm.jpg"
-
-                    # 2. Try Specific Brand Logo
-                    if not img:
-                        img = images.get(m.get('brand'), None)
-                    
-                    # 3. Key Mapping Overrides
-                    if not img:
-                        if "Baidyanath" in m['name']: img = "https://logo.clearbit.com/baidyanath.co.in"
-                        elif "Cipla" in m.get('brand', ''): img = "https://logo.clearbit.com/cipla.com"
-                        elif "Glenmark" in m.get('brand', ''): img = "https://logo.clearbit.com/glenmarkpharma.com"
-                        elif "Glucon-D" in m['brand']: img = "https://logo.clearbit.com/glucond.com"
-                    
-                    # 4. Fallback Category Icon
-                    if not img:
-                        img = cat_images.get(m['cat'], "https://i.imgur.com/7X5Xy9C.png")
-                    
                     med = Medicine(
                         name=m['name'],
                         category=m['type'], 
                         price=m['price'],
                         original_price=int(m['price'] * 1.15),
                         description=f"Genuine {m['name']} for {m['cat']} care.",
-                        image_url=img,
+                        image_url="https://i.imgur.com/7X5Xy9C.png", # Default Placeholder for all
                         is_active=True
                     )
                     db.session.add(med)
