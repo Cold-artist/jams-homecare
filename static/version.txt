@@ -1,1 +1,1 @@
-v6.2-SAFE
+v7.0-STABLE

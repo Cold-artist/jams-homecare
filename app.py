@@ -240,23 +240,7 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
 
-class ContactForm(FlaskForm):
-    name = StringField('Your Name', validators=[DataRequired()])
-    phone = StringField('Phone Number', validators=[
-        DataRequired(), 
-        Regexp(r'^[0-9+\s-]{10,}$', message='Please enter a valid mobile number')
-    ])
-    service = SelectField('Service Interested In', choices=[
-        ('', 'Select a Service'),
-        ('Home Visit', 'Doctor/Nurse Home Visit'),
-        ('Lab Test', 'Lab Sample Collection'),
-        ('Injection', 'Injection/Drip Service'),
-        ('Elderly Care', 'Elderly Care Support'),
-        ('Medicine', 'Medicine Delivery'),
-        ('Other', 'Other Inquiry')
-    ], validators=[DataRequired()])
-    message = TextAreaField('Message (Optional)')
-    submit = SubmitField('Submit Request')
+
 
 # Duplicate function removed
 
@@ -1451,14 +1435,13 @@ def initialize_database():
     if not db_initialized:
         try:
             # Robust Check for Empty DB (Works on Postgres & SQLite)
-            # We try to access the User table. If it fails, we create tables.
             try:
                 db.session.query(User).first()
             except Exception:
                 app.logger.info("Database Not Found/Empty. Creating Tables...")
                 db.create_all()
-                seed_production_data()
-                app.logger.info("Database Created & Seeded Successfully.")
+                # seed_production_data() # DISABLED: Prevent Startup Timeout
+                app.logger.info("Database Created. Visit /init-data to seed.")
             
             db_initialized = True
         except Exception as e:
