@@ -147,7 +147,22 @@ class Booking(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     payment_method = db.Column(db.String(20), default='cod')
     amount = db.Column(db.Integer, default=499) # Store agreed price
-    staff_id = db.Column(db.Integer, nullable=True) 
+    staff_id = db.Column(db.Integer, nullable=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow) # Added for Admin tracking
+    
+    # Relationship to Items
+    items = db.relationship('BookingItem', backref='booking', lazy=True, cascade="all, delete-orphan")
+
+class BookingItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    booking_id = db.Column(db.Integer, db.ForeignKey('booking.id'), nullable=False)
+    item_type = db.Column(db.String(50), nullable=False) # 'medicine' or 'lab_test'
+    item_name = db.Column(db.String(200), nullable=False)
+    quantity = db.Column(db.Integer, default=1)
+    price = db.Column(db.Integer, nullable=False) # Price at time of booking
+    
+    def __repr__(self):
+        return f"<Item {self.item_name} x{self.quantity}>" 
 
 class LabTest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -378,32 +393,66 @@ def book_home_visit():
             else:
                 app.logger.warning(f"Price Lookup Failed for: {test_name}")
 
-        # Create booking
+        # Create booking (Unified)
         booking = Booking(
             user_id=current_user.id if current_user.is_authenticated else None,
             patient_name=form.patient_name.data,
             age=form.age.data,
             mobile=form.mobile.data,
-            email=form.email.data, # Save customer email
+            email=form.email.data,
             address=form.address.data,
             area=form.area.data,
             landmark=form.landmark.data,
             service_type=service_type,
-            test_name=test_name,
+            test_name=test_name, # Kept for single manual test booking
             prescription_path=prescription_path,
             preferred_date=form.preferred_date.data,
             preferred_time=form.preferred_time.data,
-            amount=booking_price, # CRITICAL: Save calculated price
-            payment_method=request.form.get('payment_method', 'cod')
+            amount=booking_price,
+            payment_method=request.form.get('payment_method', 'cod'),
+            status='pending' # Default status
         )
         db.session.add(booking)
+        db.session.flush() # Get ID before committing items
+
+        # --- UNIFIED BOOKING LOGIC: SAVE ITEMS ---
+        cart = session.get('cart', [])
+        
+        # 1. Add Cart Items
+        for item in cart:
+            booking_item = BookingItem(
+                booking_id=booking.id,
+                item_type=item.get('type', 'medicine'),
+                item_name=item.get('name'),
+                quantity=item.get('qty', 1),
+                price=item.get('price', 0)
+            )
+            db.session.add(booking_item)
+            
+        # 2. Add Single Lab Test (if booked directly via form, not cart)
+        if service_type == 'sample_collection' and test_name:
+             # Check if this was already in cart to avoid duplicates? 
+             # For now, we assume form-based booking is separate or additive
+             # If cart is empty, this ensures the test is recorded as an item
+            if not cart: 
+                 booking_item = BookingItem(
+                    booking_id=booking.id,
+                    item_type='lab_test',
+                    item_name=test_name,
+                    quantity=1,
+                    price=booking_price
+                )
+                 db.session.add(booking_item)
+
         db.session.commit()
+        
+        # Clear Cart after successful booking
+        session.pop('cart', None)
         
         # Payment Message
         payment_text = "Pay on Collection"
         if booking.payment_method == 'online':
              payment_text = "Pay Online"
-             # Redirect to Payment Page instead of Confirmation
              return redirect(url_for('payment', booking_id=booking.id))
 
         # Prepare WhatsApp message
@@ -1007,13 +1056,38 @@ def admin_dashboard():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
     
+    # Unified Booking Query with Sorting
     bookings = Booking.query.order_by(Booking.created_at.desc()).all()
     inquiries = Inquiry.query.order_by(Inquiry.created_at.desc()).all()
+    
+    # --- REVENUE CALCULATION ---
+    now = datetime.now()
+    current_month_start = datetime(now.year, now.month, 1)
+    
+    # 1. Monthly Revenue (Paid or Completed bookings in current month)
+    monthly_revenue = db.session.query(func.sum(Booking.amount)).filter(
+        Booking.created_at >= current_month_start,
+        Booking.status.in_(['completed', 'paid', 'confirmed']) # Adjust based on business logic
+    ).scalar() or 0
+    
+    # 2. Total Revenue (Lifetime)
+    total_revenue = db.session.query(func.sum(Booking.amount)).filter(
+        Booking.status.in_(['completed', 'paid', 'confirmed'])
+    ).scalar() or 0
+    
+    # 3. Pending Count
+    pending_count = Booking.query.filter_by(status='pending').count()
     
     # Check for SQLite (Ephemeral DB Risk)
     is_sqlite = app.config.get('SQLALCHEMY_DATABASE_URI', '').startswith('sqlite:')
     
-    return render_template('admin.html', bookings=bookings, inquiries=inquiries, is_sqlite=is_sqlite)
+    return render_template('admin.html', 
+                           bookings=bookings, 
+                           inquiries=inquiries, 
+                           is_sqlite=is_sqlite,
+                           monthly_revenue=int(monthly_revenue),
+                           total_revenue=int(total_revenue),
+                           pending_count=pending_count)
 
 @app.route('/admin/medicines')
 def admin_medicines():
@@ -1054,6 +1128,24 @@ def admin_delete_medicine(id):
     db.session.commit()
     flash('Medicine deleted.', 'success')
     return redirect(url_for('admin_medicines'))
+
+@app.route('/admin/booking/<int:booking_id>/status/<string:new_status>')
+def admin_update_booking_status(booking_id, new_status):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    valid_statuses = ['pending', 'confirmed', 'completed', 'cancelled']
+    if new_status not in valid_statuses:
+        flash('Invalid Status Update', 'danger')
+        return redirect(url_for('admin_dashboard'))
+        
+    booking = Booking.query.get_or_404(booking_id)
+    booking.status = new_status
+    booking.updated_at = datetime.utcnow()
+    db.session.commit()
+    
+    flash(f"Booking #{booking.id} marked as {new_status.title()}", 'success')
+    return redirect(url_for('admin_dashboard'))
 
 # --- DEPLOYMENT AUTO-SEEDING (CRITICAL FOR RENDER) ---
 def seed_production_data():
@@ -1413,21 +1505,37 @@ def initialize_database():
         #     print(f"CRITICAL DB ERROR: {e}")
         pass
 
-@app.route('/fix-db')
-def manual_db_fix():
+@app.route('/update-schema')
+def update_schema_v2():
     try:
         from sqlalchemy import text
-        # Direct SQL Fix - No external file dependency
-        sql = text('ALTER TABLE "user" ALTER COLUMN password_hash TYPE VARCHAR(256);')
         with db.engine.connect() as connection:
-             connection.execute(sql)
+             # 1. Create BookingItem Table (if not exists)
+             # We rely on db.create_all() for new tables, but explicit SQL is safer for migrations
+             connection.execute(text('''
+                CREATE TABLE IF NOT EXISTS booking_item (
+                    id SERIAL PRIMARY KEY,
+                    booking_id INTEGER NOT NULL REFERENCES booking(id),
+                    item_type VARCHAR(50) NOT NULL,
+                    item_name VARCHAR(200) NOT NULL,
+                    quantity INTEGER DEFAULT 1,
+                    price INTEGER NOT NULL
+                );
+             '''))
+             
+             # 2. Add updated_at column to Booking (if not exists)
+             try:
+                 connection.execute(text('ALTER TABLE booking ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;'))
+             except Exception:
+                 pass # Column likely exists
+                 
              connection.commit()
              
-        app.logger.info("DB Fix: Password Hash column resized to 256.")
-        return "<h1>Database Fixed!</h1><p>Password Hash column size increased to 256.</p><a href='/register'>Try Signing Up Again</a>"
+        app.logger.info("Schema Update: Created BookingItem & Added updated_at.")
+        return "<h1>Schema Updated!</h1><p>Booking System Upgrade Applied.</p><a href='/admin/login'>Go to Admin</a>"
     except Exception as e:
-        app.logger.error(f"DB Fix Failed: {e}")
-        return f"<h1>Fix Failed</h1><p>{e}</p>"
+        app.logger.error(f"Schema Update Failed: {e}")
+        return f"<h1>Update Failed</h1><p>{e}</p>"
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
