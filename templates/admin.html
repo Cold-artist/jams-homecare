@@ -206,61 +206,70 @@
                             </td>
                         </tr>
 
-                        <!-- Inquiries Section -->
-                        <div class="glass-card" style="padding: 2rem; border-radius: 16px;">
-                            <h2
-                                style="font-size: 1.75rem; color: var(--secondary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                                💬 Message Enquiries
-                                <span
-                                    style="font-size: 1rem; background: var(--primary); color: white; padding: 0.2rem 0.6rem; border-radius: 99px;">{{
-                                    inquiries|length }}</span>
-                            </h2>
-
-                            <div style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
-                                    <thead>
-                                        <tr style="background: rgba(14, 116, 144, 0.05); text-align: left;">
-                                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Date
-                                            </th>
-                                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Name
-                                            </th>
-                                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Phone
-                                            </th>
-                                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">
-                                                Interest</th>
-                                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">
-                                                Message</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for inquiry in inquiries %}
-                                        <tr style="border-bottom: 1px solid var(--border);">
-                                            <td style="padding: 1rem; font-size: 0.9rem;">{{
-                                                inquiry.created_at.strftime('%Y-%m-%d') }}
-                                            </td>
-                                            <td style="padding: 1rem; font-weight: 500;">{{ inquiry.name }}</td>
-                                            <td style="padding: 1rem; font-family: monospace;">{{ inquiry.phone }}</td>
-                                            <td style="padding: 1rem;">
-                                                <span
-                                                    style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-size: 0.9rem;">{{
-                                                    inquiry.service }}</span>
-                                            </td>
-                                            <td style="padding: 1rem; color: var(--text-muted); max-width: 300px;">{{
-                                                inquiry.message }}
-                                            </td>
-                                        </tr>
-                                        {% else %}
-                                        <tr>
-                                            <td colspan="5"
-                                                style="padding: 2rem; text-align: center; color: var(--text-muted);">No
-                                                messages found yet.</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
+                        {% else %}
+                        <tr>
+                            <td colspan="6" style="padding: 2rem; text-align: center;">No bookings found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
+        </div>
+
+        <!-- Inquiries Section -->
+        <div class="glass-card" style="padding: 2rem; border-radius: 16px;">
+            <h2
+                style="font-size: 1.75rem; color: var(--secondary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                💬 Message Enquiries
+                <span
+                    style="font-size: 1rem; background: var(--primary); color: white; padding: 0.2rem 0.6rem; border-radius: 99px;">{{
+                    inquiries|length }}</span>
+            </h2>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+                    <thead>
+                        <tr style="background: rgba(14, 116, 144, 0.05); text-align: left;">
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Date
+                            </th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Name
+                            </th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">Phone
+                            </th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">
+                                Interest</th>
+                            <th style="padding: 1rem; color: var(--text-muted); font-weight: 600;">
+                                Message</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for inquiry in inquiries %}
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 1rem; font-size: 0.9rem;">{{
+                                inquiry.created_at.strftime('%Y-%m-%d') }}
+                            </td>
+                            <td style="padding: 1rem; font-weight: 500;">{{ inquiry.name }}</td>
+                            <td style="padding: 1rem; font-family: monospace;">{{ inquiry.phone }}</td>
+                            <td style="padding: 1rem;">
+                                <span
+                                    style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px; font-size: 0.9rem;">{{
+                                    inquiry.service }}</span>
+                            </td>
+                            <td style="padding: 1rem; color: var(--text-muted); max-width: 300px;">{{
+                                inquiry.message }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" style="padding: 2rem; text-align: center; color: var(--text-muted);">No
+                                messages found yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
 </section>
 {% endblock %}
