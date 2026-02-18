@@ -1053,41 +1053,45 @@ def dashboard():
 
 @app.route('/admin')
 def admin_dashboard():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
-    
-    # Unified Booking Query with Sorting
-    bookings = Booking.query.order_by(Booking.created_at.desc()).all()
-    inquiries = Inquiry.query.order_by(Inquiry.created_at.desc()).all()
-    
-    # --- REVENUE CALCULATION ---
-    now = datetime.now()
-    current_month_start = datetime(now.year, now.month, 1)
-    
-    # 1. Monthly Revenue (Paid or Completed bookings in current month)
-    monthly_revenue = db.session.query(func.sum(Booking.amount)).filter(
-        Booking.created_at >= current_month_start,
-        Booking.status.in_(['completed', 'paid', 'confirmed']) # Adjust based on business logic
-    ).scalar() or 0
-    
-    # 2. Total Revenue (Lifetime)
-    total_revenue = db.session.query(func.sum(Booking.amount)).filter(
-        Booking.status.in_(['completed', 'paid', 'confirmed'])
-    ).scalar() or 0
-    
-    # 3. Pending Count
-    pending_count = Booking.query.filter_by(status='pending').count()
-    
-    # Check for SQLite (Ephemeral DB Risk)
-    is_sqlite = app.config.get('SQLALCHEMY_DATABASE_URI', '').startswith('sqlite:')
-    
-    return render_template('admin.html', 
-                           bookings=bookings, 
-                           inquiries=inquiries, 
-                           is_sqlite=is_sqlite,
-                           monthly_revenue=int(monthly_revenue),
-                           total_revenue=int(total_revenue),
-                           pending_count=pending_count)
+    try:
+        if not session.get('admin_logged_in'):
+            return redirect(url_for('admin_login'))
+        
+        # Unified Booking Query with Sorting
+        bookings = Booking.query.order_by(Booking.created_at.desc()).all()
+        inquiries = Inquiry.query.order_by(Inquiry.created_at.desc()).all()
+        
+        # --- REVENUE CALCULATION ---
+        now = datetime.now()
+        current_month_start = datetime(now.year, now.month, 1)
+        
+        # 1. Monthly Revenue (Paid or Completed bookings in current month)
+        monthly_revenue = db.session.query(func.sum(Booking.amount)).filter(
+            Booking.created_at >= current_month_start,
+            Booking.status.in_(['completed', 'paid', 'confirmed']) # Adjust based on business logic
+        ).scalar() or 0
+        
+        # 2. Total Revenue (Lifetime)
+        total_revenue = db.session.query(func.sum(Booking.amount)).filter(
+            Booking.status.in_(['completed', 'paid', 'confirmed'])
+        ).scalar() or 0
+        
+        # 3. Pending Count
+        pending_count = Booking.query.filter_by(status='pending').count()
+        
+        # Check for SQLite (Ephemeral DB Risk)
+        is_sqlite = app.config.get('SQLALCHEMY_DATABASE_URI', '').startswith('sqlite:')
+        
+        return render_template('admin.html', 
+                            bookings=bookings, 
+                            inquiries=inquiries, 
+                            is_sqlite=is_sqlite,
+                            monthly_revenue=int(monthly_revenue),
+                            total_revenue=int(total_revenue),
+                            pending_count=pending_count)
+    except Exception as e:
+        app.logger.error(f"Admin Dashboard Error: {e}")
+        return f"<h1>Admin Dashboard Error</h1><pre>{str(e)}</pre>"
 
 @app.route('/admin/medicines')
 def admin_medicines():
