@@ -1689,28 +1689,7 @@ def debug_db():
 
 # --- SELF-HEALING DATABASE ---
 # Critical for Render ephemeral storage: Ensure DB exists on first request
-db_initialized = False
-
-@app.before_request
-def initialize_database():
-    global db_initialized
-    if not db_initialized:
-        try:
-             # Robust Check for Empty DB (Works on Postgres & SQLite)
-             try:
-                 db.session.query(User).first()
-             except Exception:
-                 app.logger.info("Database Not Found/Empty. Creating Tables...")
-                 db.create_all()
-                 # seed_production_data() # DISABLED: Prevent Startup Timeout
-                 app.logger.info("Database Created. Visit /init-data to seed.")
-            
-             db_initialized = True
-        except Exception as e:
-             app.logger.error(f"Critical DB Init Error: {e}")
-             # Do NOT swallow the error, let it print so we can debug if it persists
-             print(f"CRITICAL DB ERROR: {e}")
-        pass
+# Legacy auto-init removed to prevent Gunicorn Postgres deadlocks
 
 @app.route('/update-schema')
 def update_schema_v2():
