@@ -83,7 +83,7 @@
                     <!-- 2. Paste External URL -->
                     <form action="{{ url_for('link_medicine_image', med_id=med.id) }}" method="POST"
                         style="display: flex; gap: 0.5rem;" class="url-form">
-                        <input type="url" name="image_url" id="url-input-{{ med.id }}"
+                        <input type="url" name="image_url_{{ med.id }}" id="url-input-{{ med.id }}" autocomplete="off"
                             placeholder="Paste image link here..." required
                             style="flex: 1; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.8rem;"
                             class="url-input">

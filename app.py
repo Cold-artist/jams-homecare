@@ -1221,7 +1221,7 @@ def link_medicine_image(med_id):
         return jsonify({'error': 'Unauthorized'}), 403
         
     medicine = Medicine.query.get_or_404(med_id)
-    image_url = request.form.get('image_url')
+    image_url = request.form.get(f'image_url_{med_id}')
     
     if image_url:
         image_url = image_url.strip()
