@@ -1298,6 +1298,59 @@ def bulk_link_images():
         app.logger.error(f"Bulk Link Commit Error: {e}")
         return jsonify({"error": "Database error"}), 500
 
+@app.route('/admin/bulk-upload-images', methods=['POST'])
+@login_required
+def bulk_upload_images():
+    if not current_user.is_admin:
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    success_count = 0
+    error_count = 0
+
+    # request.files contains the FormData files, keys are 'image_42'
+    for key, file in request.files.items():
+        if key.startswith('image_') and file.filename != '':
+            try:
+                # Extract med_id from the key
+                med_id_str = key.replace('image_', '')
+                med_id = int(med_id_str)
+                medicine = Medicine.query.get(med_id)
+                
+                if medicine:
+                    # Upload directly to Cloudinary
+                    upload_result = cloudinary.uploader.upload(
+                        file, 
+                        folder="homecare/medicines/", 
+                        public_id=f"med_{medicine.id}",
+                        overwrite=True
+                    )
+                    # Update medicine record
+                    medicine.image_url = upload_result.get('secure_url')
+                    success_count += 1
+                else:
+                    error_count += 1
+            except Exception as e:
+                app.logger.error(f"Bulk Upload Error for {key}: {e}")
+                error_count += 1
+
+    try:
+        if success_count > 0:
+            db.session.commit()
+            flash(f"Successfully uploaded {success_count} image(s) to Cloudinary.", "success")
+            if error_count > 0:
+                flash(f"Note: {error_count} upload(s) failed.", "warning")
+        else:
+            if error_count > 0:
+                flash("All uploads failed.", "danger")
+            else:
+                flash("No file was selected for upload.", "warning")
+                
+        return jsonify({"success": True, "saved": success_count, "failed": error_count})
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Bulk Upload Commit Error: {e}")
+        return jsonify({"error": "Database error"}), 500
+
 
 # --- STARTUP DATA SEEDING (V6.0 PRODUCTION) ---
 def seed_production_data():
