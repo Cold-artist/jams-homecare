@@ -82,8 +82,9 @@
 
                     <!-- 2. Paste External URL -->
                     <form action="{{ url_for('link_medicine_image', med_id=med.id) }}" method="POST"
-                        style="display: flex; gap: 0.5rem;" class="url-form" data-med-id="{{ med.id }}">
-                        <input type="url" name="image_url" placeholder="Paste image link here..." required
+                        style="display: flex; gap: 0.5rem;" class="url-form">
+                        <input type="url" name="image_url" id="url-input-{{ med.id }}"
+                            placeholder="Paste image link here..." required
                             style="flex: 1; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.8rem;"
                             class="url-input">
                         <button type="submit" class="btn-sm"
@@ -100,23 +101,26 @@
 
 <script>
     async function submitAllLinks() {
-        const forms = document.querySelectorAll('.url-form');
         const payload = [];
 
-        forms.forEach(form => {
-            const medId = form.getAttribute('data-med-id');
-            // Select the specific input INSIDE this specific form iteration
-            const input = form.querySelector('.url-input');
+        // Find all inputs that start with the ID "url-input-"
+        const allInputs = document.querySelectorAll('input[id^="url-input-"]');
 
-            if (input) {
-                const url = input.value.trim();
+        allInputs.forEach(input => {
+            if (input && input.value) {
+                const urlVal = input.value.trim();
 
-                // Only push to payload if the URL is not empty!
-                if (url !== "") {
-                    payload.push({
-                        med_id: parseInt(medId),
-                        image_url: url
-                    });
+                if (urlVal !== "") {
+                    // Extract the medicine ID from the input's ID attribute (e.g., "url-input-42" -> "42")
+                    const medIdStr = input.id.replace('url-input-', '');
+                    const medId = parseInt(medIdStr);
+
+                    if (!isNaN(medId)) {
+                        payload.push({
+                            med_id: medId,
+                            image_url: urlVal
+                        });
+                    }
                 }
             }
         });
