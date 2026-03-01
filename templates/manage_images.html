@@ -104,15 +104,20 @@
         const payload = [];
 
         forms.forEach(form => {
-            const input = form.querySelector('.url-input');
-            const url = input.value.trim();
             const medId = form.getAttribute('data-med-id');
+            // Select the specific input INSIDE this specific form iteration
+            const input = form.querySelector('.url-input');
 
-            if (url) {
-                payload.push({
-                    med_id: parseInt(medId),
-                    image_url: url
-                });
+            if (input) {
+                const url = input.value.trim();
+
+                // Only push to payload if the URL is not empty!
+                if (url !== "") {
+                    payload.push({
+                        med_id: parseInt(medId),
+                        image_url: url
+                    });
+                }
             }
         });
 
