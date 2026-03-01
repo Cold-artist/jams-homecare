@@ -22,6 +22,11 @@ import hmac
 import hashlib
 from sqlalchemy import func, inspect, text # Critical for db_recovery
 
+# Cloudinary Storage
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 
 app = Flask(__name__)
 # Security Key
@@ -49,7 +54,21 @@ app.logger.addHandler(file_handler)
 app.logger.setLevel(logging.INFO)
 app.logger.info('Homecare Startup')
 
-# --- RAZORPAY CONFIGURATION ---
+# --- CLOUDINARY CONFIGURATION ---
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL')
+# If URL is provided, Cloudinary SDK automatically picks it up from the environment
+# But we explicitly configure it for safety in case it's not set globally
+if CLOUDINARY_URL:
+    try:
+        cloudinary.config(
+            secure=True
+        )
+        app.logger.info("Cloudinary configured successfully via CLOUDINARY_URL")
+    except Exception as e:
+        app.logger.error(f"Failed to configure Cloudinary: {e}")
+else:
+     app.logger.warning("CLOUDINARY_URL environment variable is MISSING. Image uploads will fail.")
+
 # --- RAZORPAY CONFIGURATION ---
 # Using Test Credentials for Development (Replace with Env Vars in Prod)
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID')
@@ -1144,14 +1163,77 @@ def admin_update_booking_status(booking_id, new_status):
         return redirect(url_for('admin_dashboard'))
         
     booking = Booking.query.get_or_404(booking_id)
-    booking.status = new_status
-    booking.updated_at = datetime.utcnow()
-    db.session.commit()
-    
+        
     flash(f"Booking #{booking.id} marked as {new_status.title()}", 'success')
     return redirect(url_for('admin_dashboard'))
 
-# --- DEPLOYMENT AUTO-SEEDING (CRITICAL FOR RENDER) ---
+# --- PHARMACY IMAGE MANAGER SECURE ROUTES ---
+
+@app.route('/admin/manage-images')
+@login_required
+def manage_images():
+    if not current_user.is_admin:
+        flash('Access Denied', 'danger')
+        return redirect(url_for('home'))
+        
+    medicines = Medicine.query.order_by(Medicine.name).all()
+    return render_template('manage_images.html', medicines=medicines)
+
+@app.route('/admin/upload-image/<int:med_id>', methods=['POST'])
+@login_required
+def upload_medicine_image(med_id):
+    if not current_user.is_admin:
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    medicine = Medicine.query.get_or_404(med_id)
+    
+    if 'image' not in request.files:
+        flash('No image file selected', 'danger')
+        return redirect(url_for('manage_images'))
+        
+    file = request.files['image']
+    if file.filename == '':
+        flash('No selected file', 'danger')
+        return redirect(url_for('manage_images'))
+        
+    try:
+        # Upload directly to Cloudinary
+        upload_result = cloudinary.uploader.upload(
+            file, 
+            folder="homecare/medicines/", 
+            public_id=f"med_{medicine.id}",
+            overwrite=True
+        )
+        # Save secure URL to DB
+        medicine.image_url = upload_result.get('secure_url')
+        db.session.commit()
+        flash(f'Image uploaded successfully for {medicine.name}!', 'success')
+    except Exception as e:
+        app.logger.error(f"Cloudinary Upload Error: {e}")
+        flash('Failed to upload image to Cloud. Please try again or check connection.', 'danger')
+        
+    return redirect(url_for('manage_images'))
+
+@app.route('/admin/link-image/<int:med_id>', methods=['POST'])
+@login_required
+def link_medicine_image(med_id):
+    if not current_user.is_admin:
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    medicine = Medicine.query.get_or_404(med_id)
+    image_url = request.form.get('image_url')
+    
+    if image_url:
+        medicine.image_url = image_url.strip()
+        db.session.commit()
+        flash(f'Image link saved successfully for {medicine.name}!', 'success')
+    else:
+        flash('Please provide a valid image URL', 'danger')
+        
+    return redirect(url_for('manage_images'))
+
+
+# --- STARTUP DATA SEEDING (V6.0 PRODUCTION) ---
 def seed_production_data():
     """Populates the database with initial Lab Tests if empty."""
     try:
