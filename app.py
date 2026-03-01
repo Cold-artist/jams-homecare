@@ -44,7 +44,7 @@ login_manager.login_view = 'login'
 if not os.path.exists('logs'):
     os.mkdir('logs')
 
-file_handler = RotatingFileHandler('logs/homecare.log', maxBytes=10240, backupCount=10)
+file_handler = RotatingFileHandler('logs/homecare.log', maxBytes=10485760, backupCount=10)
 file_handler.setFormatter(logging.Formatter(
     '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 ))
