@@ -14,9 +14,13 @@
                 <p style="color: var(--text-muted);">Directly upload or link exact product images. Images are securely
                     stored in Cloudinary.</p>
             </div>
-            <div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
                 <span class="badge" style="background: #e0f2fe; color: #0284c7; padding: 0.5rem 1rem;">Total Medicines:
                     {{ medicines|length }}</span>
+                <button type="button" onclick="submitAllLinks()" class="btn"
+                    style="background: var(--primary); color: white; padding: 0.5rem 1rem; font-size: 0.9rem;">
+                    💾 Save All Filled Links
+                </button>
             </div>
         </div>
 
@@ -78,9 +82,10 @@
 
                     <!-- 2. Paste External URL -->
                     <form action="{{ url_for('link_medicine_image', med_id=med.id) }}" method="POST"
-                        style="display: flex; gap: 0.5rem;">
+                        style="display: flex; gap: 0.5rem;" class="url-form" data-med-id="{{ med.id }}">
                         <input type="url" name="image_url" placeholder="Paste image link here..." required
-                            style="flex: 1; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.8rem;">
+                            style="flex: 1; padding: 0.4rem; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.8rem;"
+                            class="url-input">
                         <button type="submit" class="btn-sm"
                             style="background: var(--secondary); color: white; padding: 0.4rem 0.8rem; border-radius: 4px; border: none; font-size: 0.8rem; cursor: pointer;">Save
                             Link</button>
@@ -92,4 +97,58 @@
         </div>
     </div>
 </section>
+
+<script>
+    async function submitAllLinks() {
+        const forms = document.querySelectorAll('.url-form');
+        const payload = [];
+
+        forms.forEach(form => {
+            const input = form.querySelector('.url-input');
+            const url = input.value.trim();
+            const medId = form.getAttribute('data-med-id');
+
+            if (url) {
+                payload.push({
+                    med_id: parseInt(medId),
+                    image_url: url
+                });
+            }
+        });
+
+        if (payload.length === 0) {
+            alert('Please paste at least one link before saving all.');
+            return;
+        }
+
+        const btn = document.querySelector('button[onclick="submitAllLinks()"]');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳ Saving...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch('/admin/bulk-link-images', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ links: payload })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                window.location.reload();
+            } else {
+                alert('Error saving links. Please check your URLs and try again.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('A network error occurred.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+</script>
 {% endblock %}

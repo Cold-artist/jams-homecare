@@ -1249,6 +1249,55 @@ def link_medicine_image(med_id):
         
     return redirect(url_for('manage_images'))
 
+@app.route('/admin/bulk-link-images', methods=['POST'])
+@login_required
+def bulk_link_images():
+    if not current_user.is_admin:
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    data = request.get_json()
+    if not data or 'links' not in data:
+        return jsonify({'error': 'No data provided'}), 400
+        
+    links = data['links']
+    success_count = 0
+    error_count = 0
+    
+    for item in links:
+        try:
+            med_id = item.get('med_id')
+            url = item.get('image_url', '').strip()
+            
+            if not med_id or not url:
+                error_count += 1
+                continue
+                
+            if url.startswith('data:') or len(url) > 500:
+                error_count += 1
+                continue
+                
+            medicine = Medicine.query.get(med_id)
+            if medicine:
+                medicine.image_url = url
+                success_count += 1
+        except Exception as e:
+            app.logger.error(f"Bulk Link Error for med {med_id}: {e}")
+            error_count += 1
+            
+    try:
+        db.session.commit()
+        if success_count > 0:
+            flash(f"Successfully saved {success_count} image link(s).", "success")
+            if error_count > 0:
+                flash(f"Note: {error_count} link(s) failed (e.g. invalid thumbnails or too long).", "warning")
+        else:
+            flash("No valid links were saved.", "danger")
+        return jsonify({"success": True, "saved": success_count, "failed": error_count})
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Bulk Link Commit Error: {e}")
+        return jsonify({"error": "Database error"}), 500
+
 
 # --- STARTUP DATA SEEDING (V6.0 PRODUCTION) ---
 def seed_production_data():
