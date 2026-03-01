@@ -1224,9 +1224,26 @@ def link_medicine_image(med_id):
     image_url = request.form.get('image_url')
     
     if image_url:
-        medicine.image_url = image_url.strip()
-        db.session.commit()
-        flash(f'Image link saved successfully for {medicine.name}!', 'success')
+        image_url = image_url.strip()
+        
+        # 1. Check if it's a base64 encoded data string (which is huge and not a real URL)
+        if image_url.startswith('data:'):
+            flash('You copied a thumbnail instead of the real image link. Please click "Upload Photo" instead or click the image on Google first before copying its address.', 'warning')
+            return redirect(url_for('manage_images'))
+            
+        # 2. Check column length limit (500 chars)
+        if len(image_url) > 500:
+            flash('The image link is too long to save directly. Please download the image and use the "Upload" button.', 'warning')
+            return redirect(url_for('manage_images'))
+            
+        try:
+            medicine.image_url = image_url
+            db.session.commit()
+            flash(f'Image link saved successfully for {medicine.name}!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"DB Error saving image link: {e}")
+            flash('Error saving the link to the database. Please try another image or upload it.', 'danger')
     else:
         flash('Please provide a valid image URL', 'danger')
         
