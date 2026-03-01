@@ -44,12 +44,14 @@ login_manager.login_view = 'login'
 if not os.path.exists('logs'):
     os.mkdir('logs')
 
-file_handler = RotatingFileHandler('logs/homecare.log', maxBytes=10485760, backupCount=10)
-file_handler.setFormatter(logging.Formatter(
+# In production with Gunicorn, RotatingFileHandler causes multiprocessing deadlocks.
+# We exclusively use a StreamHandler to print to Render's native log capture.
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(logging.Formatter(
     '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
 ))
-file_handler.setLevel(logging.INFO)
-app.logger.addHandler(file_handler)
+stream_handler.setLevel(logging.INFO)
+app.logger.addHandler(stream_handler)
 
 app.logger.setLevel(logging.INFO)
 app.logger.info('Homecare Startup')
