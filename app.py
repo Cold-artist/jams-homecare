@@ -1353,7 +1353,22 @@ def bulk_upload_images():
         app.logger.error(f"Bulk Upload Commit Error: {e}")
         return jsonify({"error": "Database error"}), 500
 
-
+@app.route('/admin/booking/<int:booking_id>/status/<string:new_status>')
+@login_required
+def admin_update_booking_status(booking_id, new_status):
+    if not current_user.is_admin:
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for('home'))
+        
+    booking = Booking.query.get_or_404(booking_id)
+    if new_status in ['pending', 'confirmed', 'completed', 'cancelled']:
+        booking.status = new_status
+        db.session.commit()
+        flash(f"Booking #{booking.id} status updated to {new_status.title()}.", "success")
+    else:
+        flash("Invalid status.", "danger")
+        
+    return redirect(url_for('admin'))
 # --- STARTUP DATA SEEDING (V6.0 PRODUCTION) ---
 def seed_production_data():
     """Populates the database with initial Lab Tests if empty."""
