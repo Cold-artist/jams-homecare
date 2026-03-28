@@ -104,7 +104,7 @@ app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', app.config['MAIL_USERNAME'])
 
 # SendGrid Configuration (Robust Fallback)
-app.config['SENDGRID_API_KEY'] = os.environ.get('SENDGRID_API_KEY', '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')
+app.config['SENDGRID_API_KEY'] = os.environ.get('SENDGRID_API_KEY')
 
 mail = Mail(app)
 
